@@ -1,25 +1,29 @@
 package tests
 
 import (
-	"github.com/fadyat/gitlab-hooks/app"
+	"github.com/fadyat/gitlab-hooks/app/entities"
+	"github.com/fadyat/gitlab-hooks/app/helpers"
 	"github.com/google/go-cmp/cmp"
 	"testing"
 )
 
 type asanaRegexTestModel struct {
 	message  string
-	expected []app.AsanaURL
+	expected []entities.AsanaURL
 }
 
 var asanaRegexTests = []asanaRegexTestModel{
-	{"test",
-		[]app.AsanaURL{},
+	{
+		"test",
+		[]entities.AsanaURL{},
 	},
-	{"https://app.asana.com/0/1/2",
-		[]app.AsanaURL{},
+	{
+		"https://app.asana.com/0/1/2",
+		[]entities.AsanaURL{},
 	},
-	{"ref|https://app.asana.com/0/1/2 ref|https://app.asana.com/0/3/4",
-		[]app.AsanaURL{
+	{
+		"ref|https://app.asana.com/0/1/2 ref|https://app.asana.com/0/3/4",
+		[]entities.AsanaURL{
 			{
 				Option:    "",
 				ProjectId: "1",
@@ -32,12 +36,13 @@ var asanaRegexTests = []asanaRegexTestModel{
 			},
 		},
 	},
-	{"ref|Added feature https://app.asana.com/0/1/2",
-		[]app.AsanaURL{},
+	{
+		"ref|Added feature https://app.asana.com/0/1/2",
+		[]entities.AsanaURL{},
 	},
 	{
 		"complete|ref|https://app.asana.com/0/1/2",
-		[]app.AsanaURL{
+		[]entities.AsanaURL{
 			{
 				Option:    "complete",
 				ProjectId: "1",
@@ -47,7 +52,7 @@ var asanaRegexTests = []asanaRegexTestModel{
 	},
 	{
 		"complete|ref|https://app.asana.com/0/1/2 close|ref|https://app.asana.com/0/2/3",
-		[]app.AsanaURL{
+		[]entities.AsanaURL{
 			{
 				Option:    "complete",
 				ProjectId: "1",
@@ -62,13 +67,13 @@ var asanaRegexTests = []asanaRegexTestModel{
 	},
 	{
 		"completed|https://app.asana.com/0/1/2",
-		[]app.AsanaURL{},
+		[]entities.AsanaURL{},
 	},
 }
 
 func TestAsanaURLRegex(t *testing.T) {
 	for _, test := range asanaRegexTests {
-		actual := app.GetAsanaURLS(test.message)
+		actual := helpers.GetAsanaURLS(test.message)
 
 		if len(actual) != len(test.expected) {
 			t.Errorf("Expected %v, got %v", test.expected, actual)

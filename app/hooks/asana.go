@@ -2,59 +2,91 @@ package hooks
 
 import (
 	"bitbucket.org/mikehouston/asana-go"
-	"fmt"
+	"errors"
 	"github.com/fadyat/gitlab-hooks/app"
 	"github.com/fadyat/gitlab-hooks/app/entities"
+	"github.com/fadyat/gitlab-hooks/app/helpers"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slices"
+	"net/http"
 	"strings"
 )
 
-// GitlabMergeRequestAsana hooking merge request events.
-// Sending the merge request URL to the asana task specified in the comment.
+const cutset string = "\f\t\r\n "
+
+func endWithError(c *gin.Context, err error, httpCode int) {
+	err = c.Error(err)
+	c.JSON(httpCode, gin.H{"error": err.Error()})
+}
+
 func GitlabMergeRequestAsana(c *gin.Context) {
-	cfg, exists := c.MustGet("AsanaConfig").(app.ApiConfig)
+	icfg, exists := c.Get("ApiConfig")
 	if !exists {
-		c.JSON(500, gin.H{"error": "Cannot get config for asana"})
+		endWithError(c, errors.New("apiConfig not found"), http.StatusInternalServerError)
 		return
 	}
 
+	cfg := icfg.(app.ApiConfig)
 	var gitlabRequest entities.GitlabMergeRequestHook
 	if err := c.BindJSON(&gitlabRequest); err != nil {
-		c.JSON(400, gin.H{"error": "Cannot parse gitlab request"})
+		endWithError(c, err, http.StatusBadRequest)
 		return
 	}
 
 	if !slices.Contains(cfg.GitlabSecretTokens, c.GetHeader("X-Gitlab-Token")) {
-		c.JSON(403, gin.H{"error": "Invalid token"})
+		endWithError(c, errors.New("invalid gitlab token"), http.StatusUnauthorized)
+		return
+	}
+
+	lastCommit := gitlabRequest.ObjectAttributes.LastCommit
+	lastCommitURL := strings.Trim(lastCommit.URL, cutset)
+	message := strings.Trim(lastCommit.Message, cutset)
+
+	urls := helpers.GetAsanaURLS(lastCommit.Message)
+	if len(urls) == 0 {
+		endWithError(c, errors.New("no asana urls found"), http.StatusBadRequest)
 		return
 	}
 
 	client := asana.NewClientWithAccessToken(cfg.AsanaApiKey)
-	urls := app.GetAsanaURLS(gitlabRequest.ObjectAttributes.Description)
-
-	if len(urls) == 0 {
-		c.JSON(400, gin.H{"message": "No asana tasks found"})
-		return
-	}
-
 	for _, asanaUrl := range urls {
-		t := &asana.Task{
-			ID: asanaUrl.TaskId,
+		p := &asana.Project{
+			ID: asanaUrl.ProjectId,
 		}
-		lastCommit := gitlabRequest.ObjectAttributes.LastCommit
-		var b strings.Builder
-		fmt.Fprintf(&b, "<body><b>Message</b>: %s<b>Last commit</b>: %s\n</body>", lastCommit.Message, lastCommit.URL)
-		result, err := t.CreateComment(client, &asana.StoryBase{
-			HTMLText: b.String(),
-		})
 
+		err := p.Fetch(client)
 		if err != nil {
 			e := err.(*asana.Error)
-			c.JSON(e.StatusCode, gin.H{"message": e.Message})
+			endWithError(c, e, e.StatusCode)
 			return
 		}
 
-		c.JSON(200, result)
+		lastCommitField, err := helpers.GetCustomField(p, cfg.LastCommitFieldName)
+		messageField, err := helpers.GetCustomField(p, cfg.MessageCommitFieldName)
+		if err != nil {
+			// todo: create custom field instead of returning error
+			e := err.(*asana.Error)
+			endWithError(c, e, e.StatusCode)
+			return
+		}
+
+		t := &asana.Task{
+			ID: asanaUrl.TaskId,
+		}
+
+		err = t.Update(client, &asana.UpdateTaskRequest{
+			CustomFields: map[string]interface{}{
+				lastCommitField.ID: lastCommitURL,
+				messageField.ID:    message,
+			},
+		})
+
+		if err != nil {
+			// todo: think about situation when cannot create some of the tasks
+			endWithError(c, err, http.StatusInternalServerError)
+			return
+		}
+
+		c.JSON(200, gin.H{"result": "ok"})
 	}
 }
