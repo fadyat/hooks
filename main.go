@@ -9,7 +9,7 @@ import (
 	"log"
 )
 
-func AsanaApiMiddleware(config app.AsanaConfig) gin.HandlerFunc {
+func AsanaApiMiddleware(config app.ApiConfig) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Set("AsanaConfig", config)
 		c.Next()
@@ -38,7 +38,7 @@ func main() {
 
 	asanaHooks := api.Group("/asana")
 	{
-		var cfg app.AsanaConfig
+		var cfg app.ApiConfig
 		if err := envconfig.Process("", &cfg); err != nil {
 			log.Fatal("Error loading .env file")
 		}

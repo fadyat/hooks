@@ -1,5 +1,6 @@
 package app
 
-type AsanaConfig struct {
-	ApiKey string `envconfig:"ASANA_API_KEY" required:"true"`
+type ApiConfig struct {
+	AsanaApiKey        string   `envconfig:"ASANA_API_KEY" required:"true"`
+	GitlabSecretTokens []string `envconfig:"GITLAB_SECRET_TOKENS" required:"true"`
 }
