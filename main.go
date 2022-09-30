@@ -44,7 +44,7 @@ func main() {
 		}
 
 		asanaHooks.Use(AsanaApiMiddleware(cfg))
-		asanaHooks.POST("/merge_request", hooks.GitlabMergeRequestAsana)
+		asanaHooks.POST("/merge", hooks.GitlabMergeRequestAsana)
 	}
 
 	if err := r.Run(":80"); err != nil {

@@ -5,6 +5,7 @@ go 1.19
 require (
 	bitbucket.org/mikehouston/asana-go v0.0.0-20220830074520-c0319242fa5c
 	github.com/gin-gonic/gin v1.8.1
+	github.com/google/go-cmp v0.5.8
 	github.com/joho/godotenv v1.4.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	golang.org/x/exp v0.0.0-20220929160808-de9c53c655b9

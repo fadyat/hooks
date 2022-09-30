@@ -2,10 +2,12 @@ package hooks
 
 import (
 	"bitbucket.org/mikehouston/asana-go"
+	"fmt"
 	"github.com/fadyat/gitlab-hooks/app"
 	"github.com/fadyat/gitlab-hooks/app/entities"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slices"
+	"strings"
 )
 
 // GitlabMergeRequestAsana hooking merge request events.
@@ -30,18 +32,26 @@ func GitlabMergeRequestAsana(c *gin.Context) {
 
 	client := asana.NewClientWithAccessToken(cfg.AsanaApiKey)
 	urls := app.GetAsanaURLS(gitlabRequest.ObjectAttributes.Description)
-	for _, asanaUrl := range *urls {
+
+	if len(urls) == 0 {
+		c.JSON(400, gin.H{"message": "No asana tasks found"})
+		return
+	}
+
+	for _, asanaUrl := range urls {
 		t := &asana.Task{
 			ID: asanaUrl.TaskId,
 		}
-
+		lastCommit := gitlabRequest.ObjectAttributes.LastCommit
+		var b strings.Builder
+		fmt.Fprintf(&b, "<body><b>Message</b>: %s<b>Last commit</b>: %s\n</body>", lastCommit.Message, lastCommit.URL)
 		result, err := t.CreateComment(client, &asana.StoryBase{
-			Text: gitlabRequest.ObjectAttributes.URL,
+			HTMLText: b.String(),
 		})
 
 		if err != nil {
-			err := err.(asana.Error)
-			c.JSON(err.StatusCode, gin.H{"message": err.Message})
+			e := err.(*asana.Error)
+			c.JSON(e.StatusCode, gin.H{"message": e.Message})
 			return
 		}
 
