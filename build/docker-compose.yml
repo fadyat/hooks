@@ -2,8 +2,8 @@ version: "3.7"
 services:
   api:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ../.
+      dockerfile: ./build/Dockerfile
     ports:
       - "80:80"
     volumes:

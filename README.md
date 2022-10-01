@@ -35,5 +35,5 @@ GITLAB_SECRET_TOKENS=<list of tokens>
 ## Build
 
 ```bash
-docker compose up --build api
+make up
 ```

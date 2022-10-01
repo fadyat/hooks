@@ -2,10 +2,10 @@ lint:
 	golangci-lint run
 
 up:
-	docker-compose up --build api
+	docker-compose -f build/docker-compose.yml up --build api
 
 hooks:
-	cd ./cmd/hooks && go run main.go
+	go run cmd/hooks/main.go
 
 tests:
-	cd ./test && go test -v ./...
+	go test -v  ./...
