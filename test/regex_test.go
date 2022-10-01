@@ -1,8 +1,8 @@
-package tests
+package test
 
 import (
-	"github.com/fadyat/gitlab-hooks/app/entities"
-	"github.com/fadyat/gitlab-hooks/app/helpers"
+	"github.com/fadyat/hooks/api/entities"
+	"github.com/fadyat/hooks/api/helpers"
 	"github.com/google/go-cmp/cmp"
 	"testing"
 )

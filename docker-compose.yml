@@ -6,6 +6,5 @@ services:
       dockerfile: Dockerfile
     ports:
       - "80:80"
-    command: [ "go", "run", "main.go" ]
     volumes:
       - .:/app

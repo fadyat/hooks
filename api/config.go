@@ -1,12 +1,12 @@
-package app
+package api
 
 import (
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 )
 
-// APIConfig is the configuration for the API
-type APIConfig struct {
+// HTTPAPI is the configuration for the API
+type HTTPAPI struct {
 	// Asana Personal Access Token
 	AsanaAPIKey string `envconfig:"ASANA_API_KEY" required:"true"`
 
@@ -21,12 +21,12 @@ type APIConfig struct {
 }
 
 // LoadConfig loads the configuration from the environment
-func LoadConfig() (*APIConfig, error) {
+func LoadConfig() (*HTTPAPI, error) {
 	if err := godotenv.Load(); err != nil {
 		return nil, err
 	}
 
-	var cfg APIConfig
+	var cfg HTTPAPI
 	if err := envconfig.Process("", &cfg); err != nil {
 		return nil, err
 	}

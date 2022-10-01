@@ -24,7 +24,6 @@ linters-settings:
       - experimental
     disabled-checks:
       - wrapperFunc
-      # TODO: feel free to remove these excludes and fix the code
       - hugeParam
       - rangeValCopy
 
@@ -35,7 +34,6 @@ linters:
     - revive
     - govet
     - unconvert
-    - megacheck
     - gas
     - gocyclo
     - dupl

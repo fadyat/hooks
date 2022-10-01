@@ -1,12 +1,12 @@
-package hooks
+package gitlab
 
 import (
 	"bitbucket.org/mikehouston/asana-go"
 	"errors"
 	"fmt"
-	"github.com/fadyat/gitlab-hooks/app"
-	"github.com/fadyat/gitlab-hooks/app/entities"
-	"github.com/fadyat/gitlab-hooks/app/helpers"
+	"github.com/fadyat/hooks/api"
+	"github.com/fadyat/hooks/api/entities"
+	"github.com/fadyat/hooks/api/helpers"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -21,37 +21,15 @@ func endWithError(c *gin.Context, err error, httpCode int, l *zerolog.Logger) {
 	c.JSON(httpCode, gin.H{"error": err.Error()})
 }
 
-// itsIncorrectAsanaURL adds incorrect asana url to incorrectAsanaURLs
-func itsIncorrectAsanaURL(
-	incorrectAsanaURLs *[]entities.IncorrectAsanaURL,
-	asanaURL entities.AsanaURL,
-	err error,
-) {
-	*incorrectAsanaURLs = append(*incorrectAsanaURLs, entities.IncorrectAsanaURL{
-		AsanaURL: asanaURL,
-		Error:    err,
-	})
-}
-
-// itsCorrectAsanaURL adds correct asana url to updatedAsanaTasks
-func itsCorrectAsanaURL(
-	updatedAsanaTasks *[]entities.UpdatedAsanaTask,
-	asanaURL entities.AsanaURL,
-) {
-	*updatedAsanaTasks = append(*updatedAsanaTasks, entities.UpdatedAsanaTask{
-		AsanaTaskID: asanaURL.TaskID,
-	})
-}
-
-// GitlabMergeRequestAsana handles gitlab merge request hook
-func GitlabMergeRequestAsana(c *gin.Context) {
-	icfg, exists := c.Get("APIConfig")
+// MergeRequestAsana handles gitlab merge request hook
+func MergeRequestAsana(c *gin.Context) {
+	icfg, exists := c.Get("HTTPAPI")
 	if !exists {
 		endWithError(c, errors.New("apiConfig not found"), http.StatusInternalServerError, &log.Logger)
 		return
 	}
 
-	cfg := icfg.(*app.APIConfig)
+	cfg := icfg.(*api.HTTPAPI)
 	var gitlabRequest entities.GitlabMergeRequestHook
 	if err := c.BindJSON(&gitlabRequest); err != nil {
 		endWithError(c, err, http.StatusBadRequest, &log.Logger)
@@ -89,20 +67,20 @@ func GitlabMergeRequestAsana(c *gin.Context) {
 		err := p.Fetch(client)
 		if err != nil {
 			logger.Info().Msg(fmt.Sprintf("Failed to fetch asana project %s", asanaURL.ProjectID))
-			itsIncorrectAsanaURL(&incorrectAsanaURLs, asanaURL, err)
+			helpers.ItsIncorrectAsanaURL(&incorrectAsanaURLs, asanaURL, err)
 			continue
 		}
 
 		lastCommitField, asanaErr := helpers.GetOrCreateCustomField(client, p, cfg.LastCommitFieldName)
 		if asanaErr != nil {
 			logger.Info().Msg(fmt.Sprintf("Failed to get or create '%s' custom field, %s", cfg.LastCommitFieldName, p.Name))
-			itsIncorrectAsanaURL(&incorrectAsanaURLs, asanaURL, asanaErr)
+			helpers.ItsIncorrectAsanaURL(&incorrectAsanaURLs, asanaURL, asanaErr)
 			continue
 		}
 		messageField, asanaErr := helpers.GetOrCreateCustomField(client, p, cfg.MessageCommitFieldName)
 		if asanaErr != nil {
 			logger.Info().Msg(fmt.Sprintf("Failed to get or create '%s' custom field, %s", cfg.MessageCommitFieldName, p.Name))
-			itsIncorrectAsanaURL(&incorrectAsanaURLs, asanaURL, asanaErr)
+			helpers.ItsIncorrectAsanaURL(&incorrectAsanaURLs, asanaURL, asanaErr)
 			continue
 		}
 
@@ -119,11 +97,11 @@ func GitlabMergeRequestAsana(c *gin.Context) {
 
 		if err != nil {
 			logger.Info().Msg(fmt.Sprintf("Failed to update asana task %s", asanaURL.TaskID))
-			itsIncorrectAsanaURL(&incorrectAsanaURLs, asanaURL, asanaErr)
+			helpers.ItsIncorrectAsanaURL(&incorrectAsanaURLs, asanaURL, asanaErr)
 			continue
 		}
 
-		itsCorrectAsanaURL(&updatedAsanaTasks, asanaURL)
+		helpers.ItsCorrectAsanaURL(&updatedAsanaTasks, asanaURL)
 	}
 
 	code := http.StatusOK

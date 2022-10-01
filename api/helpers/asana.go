@@ -2,7 +2,7 @@ package helpers
 
 import (
 	"bitbucket.org/mikehouston/asana-go"
-	"github.com/fadyat/gitlab-hooks/app/entities"
+	"github.com/fadyat/hooks/api/entities"
 	"regexp"
 	"strings"
 )
@@ -78,4 +78,26 @@ func GetOrCreateCustomField(client *asana.Client, p *asana.Project, name string)
 	})
 
 	return fs.CustomField, e
+}
+
+// ItsIncorrectAsanaURL adds incorrect asana url to incorrectAsanaURLs
+func ItsIncorrectAsanaURL(
+	incorrectAsanaURLs *[]entities.IncorrectAsanaURL,
+	asanaURL entities.AsanaURL,
+	err error,
+) {
+	*incorrectAsanaURLs = append(*incorrectAsanaURLs, entities.IncorrectAsanaURL{
+		AsanaURL: asanaURL,
+		Error:    err,
+	})
+}
+
+// ItsCorrectAsanaURL adds correct asana url to updatedAsanaTasks
+func ItsCorrectAsanaURL(
+	updatedAsanaTasks *[]entities.UpdatedAsanaTask,
+	asanaURL entities.AsanaURL,
+) {
+	*updatedAsanaTasks = append(*updatedAsanaTasks, entities.UpdatedAsanaTask{
+		AsanaTaskID: asanaURL.TaskID,
+	})
 }

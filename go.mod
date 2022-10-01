@@ -1,4 +1,4 @@
-module github.com/fadyat/gitlab-hooks
+module github.com/fadyat/hooks
 
 go 1.19
 

@@ -1,4 +1,4 @@
-package app
+package api
 
 import (
 	"fmt"
@@ -8,9 +8,9 @@ import (
 )
 
 // ConfigMiddleware is a middleware that injects the config into the context
-func ConfigMiddleware(config *APIConfig) gin.HandlerFunc {
+func ConfigMiddleware(config *HTTPAPI) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Set("APIConfig", config)
+		c.Set("HTTPAPI", config)
 		c.Next()
 	}
 }
