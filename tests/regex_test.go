@@ -26,13 +26,13 @@ var asanaRegexTests = []asanaRegexTestModel{
 		[]entities.AsanaURL{
 			{
 				Option:    "",
-				ProjectId: "1",
-				TaskId:    "2",
+				ProjectID: "1",
+				TaskID:    "2",
 			},
 			{
 				Option:    "",
-				ProjectId: "3",
-				TaskId:    "4",
+				ProjectID: "3",
+				TaskID:    "4",
 			},
 		},
 	},
@@ -45,8 +45,8 @@ var asanaRegexTests = []asanaRegexTestModel{
 		[]entities.AsanaURL{
 			{
 				Option:    "complete",
-				ProjectId: "1",
-				TaskId:    "2",
+				ProjectID: "1",
+				TaskID:    "2",
 			},
 		},
 	},
@@ -55,13 +55,13 @@ var asanaRegexTests = []asanaRegexTestModel{
 		[]entities.AsanaURL{
 			{
 				Option:    "complete",
-				ProjectId: "1",
-				TaskId:    "2",
+				ProjectID: "1",
+				TaskID:    "2",
 			},
 			{
 				Option:    "close",
-				ProjectId: "2",
-				TaskId:    "3",
+				ProjectID: "2",
+				TaskID:    "3",
 			},
 		},
 	},

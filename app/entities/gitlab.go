@@ -1,5 +1,6 @@
 package entities
 
+// GitlabMergeRequestHook represents a Gitlab response model when a merge request is created or updated
 type GitlabMergeRequestHook struct {
 	ObjectKind string `json:"object_kind"`
 	EventType  string `json:"event_type"`

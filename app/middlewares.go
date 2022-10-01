@@ -7,41 +7,50 @@ import (
 	"time"
 )
 
-func AsanaApiMiddleware(config ApiConfig) gin.HandlerFunc {
+// ConfigMiddleware is a middleware that injects the config into the context
+func ConfigMiddleware(config *APIConfig) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		c.Set("ApiConfig", config)
+		c.Set("APIConfig", config)
 		c.Next()
 	}
 }
 
+// LoggerMiddleware is a middleware that injects the logger into the context
 func LoggerMiddleware(logger *zerolog.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
+		path := c.Request.URL.Path
+		row := c.Request.URL.RawQuery
+		if row != "" {
+			path = fmt.Sprintf("%s?%s", path, row)
+		}
+
+		logger.Info().
+			Str("method", c.Request.Method).
+			Str("path", path).
+			Msg("Request started")
 
 		c.Next()
 
 		params := gin.LogFormatterParams{
-			Latency:      time.Now().Sub(start),
+			Latency:      time.Since(start),
 			Method:       c.Request.Method,
 			StatusCode:   c.Writer.Status(),
 			ErrorMessage: c.Errors.String(),
-			BodySize:     c.Writer.Size(),
-			Path:         fmt.Sprintf("%s?%s", c.Request.URL.Path, c.Request.URL.RawQuery),
+			Path:         path,
 		}
 
 		var logEvent *zerolog.Event
-		if params.StatusCode >= 500 {
+		switch code := params.StatusCode; {
+		case code >= 500:
 			logEvent = logger.Error()
-		} else if params.StatusCode >= 400 {
-			logEvent = logger.Warn()
-		} else {
+		default:
 			logEvent = logger.Info()
 		}
 
 		logEvent.Str("method", params.Method).
-			Str("path", params.Path).
 			Int("status", params.StatusCode).
-			Int("size", params.BodySize).
+			Str("path", params.Path).
 			Dur("latency", params.Latency).
 			Msg(params.ErrorMessage)
 	}
