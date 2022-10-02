@@ -2,7 +2,9 @@ package helpers
 
 import (
 	"bitbucket.org/mikehouston/asana-go"
+	"fmt"
 	"github.com/fadyat/hooks/api/entities"
+	"github.com/rs/zerolog"
 	"regexp"
 	"strings"
 )
@@ -40,9 +42,9 @@ func GetCustomField(p *asana.Project, name string) (*asana.CustomField, *asana.E
 
 	return nil, &asana.Error{
 		StatusCode: 404,
-		Message:    "Custom field not found",
+		Message:    fmt.Sprintf("Custom field '%s' not found", name),
 		Type:       "not_found",
-		Help:       "Create custom field in project",
+		Help:       fmt.Sprintf("Create custom field '%s' in project", name),
 	}
 }
 
@@ -64,29 +66,16 @@ func GetAsanaURLS(message string) []entities.AsanaURL {
 	return urls
 }
 
-func CleanCommitMessage(message string) string {
-	re := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|https?://app\.asana\.com/\d+/(\d+)/(\d+)[^ ]*`)
-	return re.ReplaceAllString(message, "")
-}
-
-// ItsIncorrectAsanaURL adds incorrect asana url to incorrectAsanaURLs
-func ItsIncorrectAsanaURL(
-	incorrectAsanaURLs *[]entities.IncorrectAsanaURL,
-	asanaURL entities.AsanaURL,
-	err error,
-) {
-	*incorrectAsanaURLs = append(*incorrectAsanaURLs, entities.IncorrectAsanaURL{
-		AsanaURL: asanaURL,
-		Error:    err,
+// CreateTaskCommentWithLogs creates task comment with logs
+func CreateTaskCommentWithLogs(t *asana.Task, client *asana.Client, text *string, logger *zerolog.Logger) {
+	_, e := t.CreateComment(client, &asana.StoryBase{
+		Text: *text,
 	})
-}
 
-// ItsCorrectAsanaURL adds correct asana url to updatedAsanaTasks
-func ItsCorrectAsanaURL(
-	updatedAsanaTasks *[]entities.UpdatedAsanaTask,
-	asanaURL entities.AsanaURL,
-) {
-	*updatedAsanaTasks = append(*updatedAsanaTasks, entities.UpdatedAsanaTask{
-		AsanaTaskID: asanaURL.TaskID,
-	})
+	asanaError := e.(*asana.Error)
+	if e != nil {
+		logger.Info().Msg(fmt.Sprintf("Failed to create comment in task %s, %s", t.ID, asanaError.Message))
+	} else {
+		logger.Debug().Msg(fmt.Sprintf("Created comment in task %s", t.ID))
+	}
 }

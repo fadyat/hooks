@@ -36,6 +36,7 @@ func MergeRequestAsana(c *gin.Context) {
 		return
 	}
 
+	logger := log.Logger.With().Str("pr", gitlabRequest.ObjectAttributes.URL).Logger()
 	if !slices.Contains(cfg.GitlabSecretTokens, c.GetHeader("X-Gitlab-Token")) {
 		endWithError(c, errors.New("invalid gitlab token"), http.StatusUnauthorized, &log.Logger)
 		return
@@ -44,73 +45,50 @@ func MergeRequestAsana(c *gin.Context) {
 	const cutset string = "\f\t\r\n "
 	lastCommit := gitlabRequest.ObjectAttributes.LastCommit
 	lastCommitURL := strings.Trim(lastCommit.URL, cutset)
-	message := strings.Trim(helpers.CleanCommitMessage(lastCommit.Message), cutset)
-
-	logger := log.Logger.With().
-		Str("pr", gitlabRequest.ObjectAttributes.URL).
-		Logger()
 
 	urls := helpers.GetAsanaURLS(lastCommit.Message)
 	if len(urls) == 0 {
-		endWithError(c, errors.New("no asana urls found"), http.StatusBadRequest, &logger)
-		return
+		logger.Info().Msg("No asana URLS found")
 	}
 
 	client := asana.NewClientWithAccessToken(cfg.AsanaAPIKey)
-	var incorrectAsanaURLs = make([]entities.IncorrectAsanaURL, 0)
-	var updatedAsanaTasks = make([]entities.UpdatedAsanaTask, 0)
 	for _, asanaURL := range urls {
-		p := &asana.Project{
-			ID: asanaURL.ProjectID,
-		}
+		p := &asana.Project{ID: asanaURL.ProjectID}
 
 		err := p.Fetch(client)
 		if err != nil {
-			logger.Info().Msg(fmt.Sprintf("Failed to fetch asana project %s", asanaURL.ProjectID))
-			helpers.ItsIncorrectAsanaURL(&incorrectAsanaURLs, asanaURL, err)
+			e := err.(*asana.Error)
+			logger.Info().Msg(fmt.Sprintf("Failed to fetch asana project %s, %s", asanaURL.ProjectID, e.Message))
 			continue
 		}
+
+		t := &asana.Task{ID: asanaURL.TaskID}
 
 		lastCommitField, asanaErr := helpers.GetCustomField(p, cfg.LastCommitFieldName)
-		if asanaErr != nil {
-			logger.Info().
-				Msg(fmt.Sprintf("%s, %s in project %s", asanaErr.Message, cfg.LastCommitFieldName, p.Name))
-			helpers.ItsIncorrectAsanaURL(&incorrectAsanaURLs, asanaURL, asanaErr)
-			continue
-		}
-		messageField, asanaErr := helpers.GetCustomField(p, cfg.MessageCommitFieldName)
-		if asanaErr != nil {
-			logger.Info().
-				Msg(fmt.Sprintf("%s, %s in project %s", asanaErr.Message, cfg.LastCommitFieldName, p.Name))
-			helpers.ItsIncorrectAsanaURL(&incorrectAsanaURLs, asanaURL, asanaErr)
-			continue
-		}
 
-		t := &asana.Task{
-			ID: asanaURL.TaskID,
+		if asanaErr != nil {
+			logger.Info().Msg(fmt.Sprintf("Failed to get custom field %s, %s", cfg.LastCommitFieldName, asanaErr.Message))
+			comment := fmt.Sprintf("%s\n\n %s", lastCommit.URL, lastCommit.Message)
+			helpers.CreateTaskCommentWithLogs(t, client, &comment, &logger)
+			continue
 		}
 
 		err = t.Update(client, &asana.UpdateTaskRequest{
 			CustomFields: map[string]interface{}{
 				lastCommitField.ID: lastCommitURL,
-				messageField.ID:    message,
 			},
 		})
 
 		if err != nil {
-			logger.Info().Msg(fmt.Sprintf("Failed to update asana task %s", asanaURL.TaskID))
-			helpers.ItsIncorrectAsanaURL(&incorrectAsanaURLs, asanaURL, asanaErr)
+			e := err.(*asana.Error)
+			logger.Info().Msg(fmt.Sprintf("Failed to update asana task %s, %s", asanaURL.TaskID, e.Message))
+			comment := fmt.Sprintf("%s\n\n %s", lastCommit.URL, lastCommit.Message)
+			helpers.CreateTaskCommentWithLogs(t, client, &comment, &logger)
 			continue
 		}
 
-		logger.Info().Msg(fmt.Sprintf("Updated asana task %s", asanaURL.TaskID))
-		helpers.ItsCorrectAsanaURL(&updatedAsanaTasks, asanaURL)
+		logger.Debug().Msg(fmt.Sprintf("Updated asana task %s", asanaURL.TaskID))
 	}
 
-	code := http.StatusOK
-	if len(incorrectAsanaURLs) > 0 {
-		code = http.StatusBadRequest
-	}
-
-	c.JSON(code, gin.H{"incorrect": incorrectAsanaURLs, "updated": updatedAsanaTasks})
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
