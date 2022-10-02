@@ -10,7 +10,6 @@
     Updates:
     - <Last Commit> task field
     - <Message> task field
-    - Creating a custom fields <Last Commit> and <Message> if they don't exist
     - Works for multiple passed tasks
 
     How: finding in the last message string like

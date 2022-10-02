@@ -28,7 +28,7 @@ func findCustomFieldFromSettings(cf []*asana.CustomFieldSetting, name string) *a
 }
 
 // GetCustomField returns custom field from asana project by his name
-func GetCustomField(p *asana.Project, name string) (*asana.CustomField, error) {
+func GetCustomField(p *asana.Project, name string) (*asana.CustomField, *asana.Error) {
 	name = strings.ToLower(name)
 	if f := findCustomFieldFromParent(p.CustomFields, name); f != nil {
 		return f, nil
@@ -38,9 +38,11 @@ func GetCustomField(p *asana.Project, name string) (*asana.CustomField, error) {
 		return f, nil
 	}
 
-	return nil, asana.Error{
+	return nil, &asana.Error{
 		StatusCode: 404,
-		Message:    "Cannot find last commit custom field",
+		Message:    "Custom field not found",
+		Type:       "not_found",
+		Help:       "Create custom field in project",
 	}
 }
 
@@ -62,22 +64,9 @@ func GetAsanaURLS(message string) []entities.AsanaURL {
 	return urls
 }
 
-// GetOrCreateCustomField returns custom field from asana project by his name or create it if not exists
-func GetOrCreateCustomField(client *asana.Client, p *asana.Project, name string) (*asana.CustomField, error) {
-	f, err := GetCustomField(p, name)
-	if err == nil {
-		return f, nil
-	}
-
-	fs, e := p.AddProjectLocalCustomField(client, &asana.AddProjectLocalCustomFieldRequest{
-		CustomField: asana.ProjectLocalCustomField{
-			CustomFieldBase: asana.CustomFieldBase{
-				Name: name,
-			},
-		},
-	})
-
-	return fs.CustomField, e
+func CleanCommitMessage(message string) string {
+	re := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|https?://app\.asana\.com/\d+/(\d+)/(\d+)[^ ]*`)
+	return re.ReplaceAllString(message, "")
 }
 
 // ItsIncorrectAsanaURL adds incorrect asana url to incorrectAsanaURLs

@@ -2,9 +2,9 @@ package entities
 
 // AsanaURL represents passed to commit message asana url
 type AsanaURL struct {
-	Option    string
-	ProjectID string
-	TaskID    string
+	Option    string `json:"option,omitempty"`
+	ProjectID string `json:"project_id,omitempty"`
+	TaskID    string `json:"task_id,omitempty"`
 }
 
 // IncorrectAsanaURL represents incorrect asana url

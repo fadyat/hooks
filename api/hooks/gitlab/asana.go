@@ -44,7 +44,7 @@ func MergeRequestAsana(c *gin.Context) {
 	const cutset string = "\f\t\r\n "
 	lastCommit := gitlabRequest.ObjectAttributes.LastCommit
 	lastCommitURL := strings.Trim(lastCommit.URL, cutset)
-	message := strings.Trim(lastCommit.Message, cutset)
+	message := strings.Trim(helpers.CleanCommitMessage(lastCommit.Message), cutset)
 
 	logger := log.Logger.With().
 		Str("pr", gitlabRequest.ObjectAttributes.URL).
@@ -71,15 +71,17 @@ func MergeRequestAsana(c *gin.Context) {
 			continue
 		}
 
-		lastCommitField, asanaErr := helpers.GetOrCreateCustomField(client, p, cfg.LastCommitFieldName)
+		lastCommitField, asanaErr := helpers.GetCustomField(p, cfg.LastCommitFieldName)
 		if asanaErr != nil {
-			logger.Info().Msg(fmt.Sprintf("Failed to get or create '%s' custom field, %s", cfg.LastCommitFieldName, p.Name))
+			logger.Info().
+				Msg(fmt.Sprintf("%s, %s in project %s", asanaErr.Message, cfg.LastCommitFieldName, p.Name))
 			helpers.ItsIncorrectAsanaURL(&incorrectAsanaURLs, asanaURL, asanaErr)
 			continue
 		}
-		messageField, asanaErr := helpers.GetOrCreateCustomField(client, p, cfg.MessageCommitFieldName)
+		messageField, asanaErr := helpers.GetCustomField(p, cfg.MessageCommitFieldName)
 		if asanaErr != nil {
-			logger.Info().Msg(fmt.Sprintf("Failed to get or create '%s' custom field, %s", cfg.MessageCommitFieldName, p.Name))
+			logger.Info().
+				Msg(fmt.Sprintf("%s, %s in project %s", asanaErr.Message, cfg.LastCommitFieldName, p.Name))
 			helpers.ItsIncorrectAsanaURL(&incorrectAsanaURLs, asanaURL, asanaErr)
 			continue
 		}
@@ -101,6 +103,7 @@ func MergeRequestAsana(c *gin.Context) {
 			continue
 		}
 
+		logger.Info().Msg(fmt.Sprintf("Updated asana task %s", asanaURL.TaskID))
 		helpers.ItsCorrectAsanaURL(&updatedAsanaTasks, asanaURL)
 	}
 
