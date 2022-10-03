@@ -72,8 +72,8 @@ func CreateTaskCommentWithLogs(t *asana.Task, client *asana.Client, text *string
 		Text: *text,
 	})
 
-	asanaError := e.(*asana.Error)
 	if e != nil {
+		asanaError := e.(*asana.Error)
 		logger.Info().Msg(fmt.Sprintf("Failed to create comment in task %s, %s", t.ID, asanaError.Message))
 	} else {
 		logger.Debug().Msg(fmt.Sprintf("Created comment in task %s", t.ID))

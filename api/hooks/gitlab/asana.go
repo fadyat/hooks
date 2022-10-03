@@ -8,37 +8,42 @@ import (
 	"github.com/fadyat/hooks/api/entities"
 	"github.com/fadyat/hooks/api/helpers"
 	"github.com/gin-gonic/gin"
-	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 	"golang.org/x/exp/slices"
 	"net/http"
 	"strings"
 )
 
-// endWithError ends request with error
-func endWithError(c *gin.Context, err error, httpCode int, l *zerolog.Logger) {
-	l.Info().Msg(err.Error())
-	c.JSON(httpCode, gin.H{"error": err.Error()})
-}
-
-// MergeRequestAsana handles gitlab merge request hook
+// MergeRequestAsana godoc
+// @Summary     Gitlab merge request hook
+// @Description Endpoint to set last commit url to custom field in asana task, passed via commit message
+// @Tags        gitlab
+// @Accept      json
+// @Produce     json
+// @Param       X-Gitlab-Token header   string                          true "Gitlab token"
+// @Param       body           body     entities.GitlabMergeRequestHook true "Gitlab merge request"
+// @Success     200            {object} gitlab.SuccessResponse
+// @Failure     400            {object} gitlab.ErrorResponse
+// @Failure     401            {object} gitlab.ErrorResponse
+// @Failure     500            {object} gitlab.ErrorResponse
+// @Router      /api/v1/asana/merge [post]
 func MergeRequestAsana(c *gin.Context) {
 	icfg, exists := c.Get("HTTPAPI")
 	if !exists {
-		endWithError(c, errors.New("apiConfig not found"), http.StatusInternalServerError, &log.Logger)
+		helpers.EndWithError(c, errors.New("apiConfig not found"), http.StatusInternalServerError, &log.Logger)
 		return
 	}
 
 	cfg := icfg.(*api.HTTPAPI)
 	var gitlabRequest entities.GitlabMergeRequestHook
 	if err := c.BindJSON(&gitlabRequest); err != nil {
-		endWithError(c, err, http.StatusBadRequest, &log.Logger)
+		helpers.EndWithError(c, err, http.StatusBadRequest, &log.Logger)
 		return
 	}
 
 	logger := log.Logger.With().Str("pr", gitlabRequest.ObjectAttributes.URL).Logger()
 	if !slices.Contains(cfg.GitlabSecretTokens, c.GetHeader("X-Gitlab-Token")) {
-		endWithError(c, errors.New("invalid gitlab token"), http.StatusUnauthorized, &log.Logger)
+		helpers.EndWithError(c, errors.New("invalid gitlab token"), http.StatusUnauthorized, &log.Logger)
 		return
 	}
 
