@@ -15,8 +15,8 @@
     - Works for multiple passed tasks
 
     How it works: finds a line in the last commit message, for example:
-    - #|refs|https://app.asana.com/#/#/#
-    - refs|https://app.asana.com/#/#/#
+    - #|ref|https://app.asana.com/#/#/#
+    - ref|https://app.asana.com/#/#/#
 
     ---
     How to use:
