@@ -69,6 +69,50 @@ var asanaRegexTests = []asanaRegexTestModel{
 		"completed|https://app.asana.com/0/1/2",
 		[]entities.AsanaURL{},
 	},
+	{
+		"ref|123123",
+		[]entities.AsanaURL{
+			{
+				Option:    "",
+				ProjectID: "",
+				TaskID:    "123123",
+			},
+		},
+	},
+	{
+		"ref|123123 ref|123123",
+		[]entities.AsanaURL{
+			{
+				Option:    "",
+				ProjectID: "",
+				TaskID:    "123123",
+			},
+			{
+				Option:    "",
+				ProjectID: "",
+				TaskID:    "123123",
+			},
+		},
+	},
+	{
+		"ref|aboba",
+		[]entities.AsanaURL{},
+	},
+	{
+		"ref|https://app.asana.com/0/1/2 ref|123",
+		[]entities.AsanaURL{
+			{
+				Option:    "",
+				ProjectID: "1",
+				TaskID:    "2",
+			},
+			{
+				Option:    "",
+				ProjectID: "",
+				TaskID:    "123",
+			},
+		},
+	},
 }
 
 func TestAsanaURLRegex(t *testing.T) {

@@ -12,4 +12,4 @@ hooks:
 	go run cmd/hooks/main.go
 
 tests:
-	go test -v  ./...
+	go test -v ./test
