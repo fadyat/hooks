@@ -70,10 +70,11 @@ func MergeRequestAsana(c *gin.Context) {
 		t := &asana.Task{ID: asanaURL.TaskID}
 
 		lastCommitField, asanaErr := helpers.GetCustomField(p, cfg.LastCommitFieldName)
+		filteredMessage := helpers.RemoveAsanaURLS(lastCommit.Message)
 
 		if asanaErr != nil {
 			logger.Info().Msg(fmt.Sprintf("Failed to get custom field %s, %s", cfg.LastCommitFieldName, asanaErr.Message))
-			comment := fmt.Sprintf("%s\n\n %s", lastCommit.URL, lastCommit.Message)
+			comment := fmt.Sprintf("%s\n\n %s", lastCommit.URL, filteredMessage)
 			helpers.CreateTaskCommentWithLogs(t, client, &comment, &logger)
 			continue
 		}
@@ -87,7 +88,7 @@ func MergeRequestAsana(c *gin.Context) {
 		if err != nil {
 			e := err.(*asana.Error)
 			logger.Info().Msg(fmt.Sprintf("Failed to update asana task %s, %s", asanaURL.TaskID, e.Message))
-			comment := fmt.Sprintf("%s\n\n %s", lastCommit.URL, lastCommit.Message)
+			comment := fmt.Sprintf("%s\n\n %s", lastCommit.URL, filteredMessage)
 			helpers.CreateTaskCommentWithLogs(t, client, &comment, &logger)
 			continue
 		}

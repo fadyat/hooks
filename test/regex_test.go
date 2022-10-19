@@ -7,12 +7,12 @@ import (
 	"testing"
 )
 
-type asanaRegexTestModel struct {
+type asanaURLSRegexTestModel struct {
 	message  string
 	expected []entities.AsanaURL
 }
 
-var asanaRegexTests = []asanaRegexTestModel{
+var asanaRegexTests = []asanaURLSRegexTestModel{
 	{
 		"test",
 		[]entities.AsanaURL{},
@@ -127,6 +127,51 @@ func TestAsanaURLRegex(t *testing.T) {
 			if !cmp.Equal(actual[i], test.expected[i]) {
 				t.Errorf("Expected %v, got %v", test.expected, actual)
 			}
+		}
+	}
+}
+
+type asanaMessageRegexTestModel struct {
+	message  string
+	expected string
+}
+
+var asanaMessageRegexTests = []asanaMessageRegexTestModel{
+	{
+		"test",
+		"test",
+	},
+	{
+		"ref|https://app.asana.com/0/1/2",
+		"",
+	},
+	{
+		"ref|https://app.asana.com/0/1/2 ref|https://app.asana.com/0/3/4",
+		"",
+	},
+	{
+		"ref|Added feature https://app.asana.com/0/1/2",
+		"ref|Added feature https://app.asana.com/0/1/2",
+	},
+	{
+		"ref|123123123 aboba",
+		"aboba",
+	},
+	{
+		"ref|123123123 aboba ref|123123123",
+		"aboba",
+	},
+	{
+		"ref|https://app.asana.com/0/1/2 aboba aboba ref|123",
+		"aboba aboba",
+	},
+}
+
+func TestFilteredAsanaCommitMessage(t *testing.T) {
+	for _, test := range asanaMessageRegexTests {
+		actual := helpers.RemoveAsanaURLS(test.message)
+		if actual != test.expected {
+			t.Errorf("Expected %v, got %v", test.expected, actual)
 		}
 	}
 }

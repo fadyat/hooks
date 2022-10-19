@@ -17,6 +17,8 @@
     How it works: finds a line in the last commit message, for example:
     - #|ref|https://app.asana.com/#/#/#
     - ref|https://app.asana.com/#/#/#
+    - #|ref|<asana-task-id>
+    - ref|<asana-task-id>
 
     ---
     How to use:

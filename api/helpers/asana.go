@@ -50,10 +50,10 @@ func GetCustomField(p *asana.Project, name string) (*asana.CustomField, *asana.E
 
 // GetAsanaURLS returns asana urls from commit message
 func GetAsanaURLS(message string) []entities.AsanaURL {
-	asanaUrlRe := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|https?://app\.asana\.com/\d+/(\d+)/(\d+)`)
+	asanaURLRe := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|https?://app\.asana\.com/\d+/(\d+)/(\d+)`)
 	var urls []entities.AsanaURL
-	for _, url := range asanaUrlRe.FindAllString(message, -1) {
-		submatch := asanaUrlRe.FindStringSubmatch(url)[1:] // [0] is the whole match
+	for _, url := range asanaURLRe.FindAllString(message, -1) {
+		submatch := asanaURLRe.FindStringSubmatch(url)[1:] // [0] is the whole match
 		if len(submatch) == 3 {
 			urls = append(urls, entities.AsanaURL{
 				Option:    submatch[0],
@@ -63,9 +63,9 @@ func GetAsanaURLS(message string) []entities.AsanaURL {
 		}
 	}
 
-	asanaIdRe := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|(\d+)`)
-	for _, url := range asanaIdRe.FindAllString(message, -1) {
-		submatch := asanaIdRe.FindStringSubmatch(url)[1:] // [0] is the whole match
+	asanaIDRe := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|(\d+)`)
+	for _, url := range asanaIDRe.FindAllString(message, -1) {
+		submatch := asanaIDRe.FindStringSubmatch(url)[1:] // [0] is the whole match
 		if len(submatch) == 2 {
 			urls = append(urls, entities.AsanaURL{
 				Option:    submatch[0],
@@ -76,6 +76,18 @@ func GetAsanaURLS(message string) []entities.AsanaURL {
 	}
 
 	return urls
+}
+
+// RemoveAsanaURLS removes asana urls from commit message
+func RemoveAsanaURLS(message string) string {
+	asanaURLRe := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|https?://app\.asana\.com/\d+/(\d+)/(\d+)`)
+	message = asanaURLRe.ReplaceAllString(message, "")
+	asanaIDRe := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|(\d+)`)
+	message = asanaIDRe.ReplaceAllString(message, "")
+	message = regexp.MustCompile(`\s+`).ReplaceAllString(message, " ")
+	message = regexp.MustCompile(`\n+`).ReplaceAllString(message, "\n")
+	message = strings.TrimSpace(message)
+	return message
 }
 
 // CreateTaskCommentWithLogs creates task comment with logs
