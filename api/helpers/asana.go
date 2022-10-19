@@ -50,15 +50,27 @@ func GetCustomField(p *asana.Project, name string) (*asana.CustomField, *asana.E
 
 // GetAsanaURLS returns asana urls from commit message
 func GetAsanaURLS(message string) []entities.AsanaURL {
-	re := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|https?://app\.asana\.com/\d+/(\d+)/(\d+)`)
+	asanaUrlRe := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|https?://app\.asana\.com/\d+/(\d+)/(\d+)`)
 	var urls []entities.AsanaURL
-	for _, url := range re.FindAllString(message, -1) {
-		submatch := re.FindStringSubmatch(url)[1:] // [0] is the whole match
+	for _, url := range asanaUrlRe.FindAllString(message, -1) {
+		submatch := asanaUrlRe.FindStringSubmatch(url)[1:] // [0] is the whole match
 		if len(submatch) == 3 {
 			urls = append(urls, entities.AsanaURL{
 				Option:    submatch[0],
 				ProjectID: submatch[1],
 				TaskID:    submatch[2],
+			})
+		}
+	}
+
+	asanaIdRe := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|(\d+)`)
+	for _, url := range asanaIdRe.FindAllString(message, -1) {
+		submatch := asanaIdRe.FindStringSubmatch(url)[1:] // [0] is the whole match
+		if len(submatch) == 2 {
+			urls = append(urls, entities.AsanaURL{
+				Option:    submatch[0],
+				ProjectID: "",
+				TaskID:    submatch[1],
 			})
 		}
 	}
