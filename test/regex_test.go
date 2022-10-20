@@ -25,14 +25,12 @@ var asanaRegexTests = []asanaURLSRegexTestModel{
 		"ref|https://app.asana.com/0/1/2 ref|https://app.asana.com/0/3/4",
 		[]entities.AsanaURL{
 			{
-				Option:    "",
-				ProjectID: "1",
-				TaskID:    "2",
+				Option: "",
+				TaskID: "2",
 			},
 			{
-				Option:    "",
-				ProjectID: "3",
-				TaskID:    "4",
+				Option: "",
+				TaskID: "4",
 			},
 		},
 	},
@@ -44,9 +42,8 @@ var asanaRegexTests = []asanaURLSRegexTestModel{
 		"complete|ref|https://app.asana.com/0/1/2",
 		[]entities.AsanaURL{
 			{
-				Option:    "complete",
-				ProjectID: "1",
-				TaskID:    "2",
+				Option: "complete",
+				TaskID: "2",
 			},
 		},
 	},
@@ -54,14 +51,12 @@ var asanaRegexTests = []asanaURLSRegexTestModel{
 		"complete|ref|https://app.asana.com/0/1/2 close|ref|https://app.asana.com/0/2/3",
 		[]entities.AsanaURL{
 			{
-				Option:    "complete",
-				ProjectID: "1",
-				TaskID:    "2",
+				Option: "complete",
+				TaskID: "2",
 			},
 			{
-				Option:    "close",
-				ProjectID: "2",
-				TaskID:    "3",
+				Option: "close",
+				TaskID: "3",
 			},
 		},
 	},
@@ -73,9 +68,8 @@ var asanaRegexTests = []asanaURLSRegexTestModel{
 		"ref|123123",
 		[]entities.AsanaURL{
 			{
-				Option:    "",
-				ProjectID: "",
-				TaskID:    "123123",
+				Option: "",
+				TaskID: "123123",
 			},
 		},
 	},
@@ -83,14 +77,12 @@ var asanaRegexTests = []asanaURLSRegexTestModel{
 		"ref|123123 ref|123123",
 		[]entities.AsanaURL{
 			{
-				Option:    "",
-				ProjectID: "",
-				TaskID:    "123123",
+				Option: "",
+				TaskID: "123123",
 			},
 			{
-				Option:    "",
-				ProjectID: "",
-				TaskID:    "123123",
+				Option: "",
+				TaskID: "123123",
 			},
 		},
 	},
@@ -102,14 +94,21 @@ var asanaRegexTests = []asanaURLSRegexTestModel{
 		"ref|https://app.asana.com/0/1/2 ref|123",
 		[]entities.AsanaURL{
 			{
-				Option:    "",
-				ProjectID: "1",
-				TaskID:    "2",
+				Option: "",
+				TaskID: "2",
 			},
 			{
-				Option:    "",
-				ProjectID: "",
-				TaskID:    "123",
+				Option: "",
+				TaskID: "123",
+			},
+		},
+	},
+	{
+		"ref|https://app.asana.com/0/1/2/f",
+		[]entities.AsanaURL{
+			{
+				Option: "",
+				TaskID: "2",
 			},
 		},
 	},
@@ -164,6 +163,14 @@ var asanaMessageRegexTests = []asanaMessageRegexTestModel{
 	{
 		"ref|https://app.asana.com/0/1/2 aboba aboba ref|123",
 		"aboba aboba",
+	},
+	{
+		"ref|https://app.asana.com/0/1/2/f",
+		"",
+	},
+	{
+		"ref|https://app.asana.com/0/1/2/f aboba",
+		"aboba",
 	},
 }
 

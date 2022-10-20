@@ -49,16 +49,15 @@ func GetCustomField(p *asana.Project, name string) (*asana.CustomField, *asana.E
 }
 
 // GetAsanaURLS returns asana urls from commit message
-func GetAsanaURLS(message string) []entities.AsanaURL {
-	asanaURLRe := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|https?://app\.asana\.com/\d+/(\d+)/(\d+)`)
-	var urls []entities.AsanaURL
+func GetAsanaURLS(message string) []*entities.AsanaURL {
+	asanaURLRe := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|https?://app\.asana\.com/\d+/\d+/(\d+)/?\w*`)
+	var urls []*entities.AsanaURL
 	for _, url := range asanaURLRe.FindAllString(message, -1) {
 		submatch := asanaURLRe.FindStringSubmatch(url)[1:] // [0] is the whole match
-		if len(submatch) == 3 {
-			urls = append(urls, entities.AsanaURL{
-				Option:    submatch[0],
-				ProjectID: submatch[1],
-				TaskID:    submatch[2],
+		if len(submatch) == asanaURLRe.NumSubexp() {
+			urls = append(urls, &entities.AsanaURL{
+				Option: submatch[0],
+				TaskID: submatch[1],
 			})
 		}
 	}
@@ -66,11 +65,10 @@ func GetAsanaURLS(message string) []entities.AsanaURL {
 	asanaIDRe := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|(\d+)`)
 	for _, url := range asanaIDRe.FindAllString(message, -1) {
 		submatch := asanaIDRe.FindStringSubmatch(url)[1:] // [0] is the whole match
-		if len(submatch) == 2 {
-			urls = append(urls, entities.AsanaURL{
-				Option:    submatch[0],
-				ProjectID: "",
-				TaskID:    submatch[1],
+		if len(submatch) == asanaURLRe.NumSubexp() {
+			urls = append(urls, &entities.AsanaURL{
+				Option: submatch[0],
+				TaskID: submatch[1],
 			})
 		}
 	}
@@ -80,7 +78,7 @@ func GetAsanaURLS(message string) []entities.AsanaURL {
 
 // RemoveAsanaURLS removes asana urls from commit message
 func RemoveAsanaURLS(message string) string {
-	asanaURLRe := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|https?://app\.asana\.com/\d+/(\d+)/(\d+)`)
+	asanaURLRe := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|https?://app\.asana\.com/\d+/(\d+)/(\d+)/?\w*`)
 	message = asanaURLRe.ReplaceAllString(message, "")
 	asanaIDRe := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|(\d+)`)
 	message = asanaIDRe.ReplaceAllString(message, "")
@@ -101,5 +99,69 @@ func CreateTaskCommentWithLogs(t *asana.Task, client *asana.Client, text *string
 		logger.Info().Msg(fmt.Sprintf("Failed to create comment in task %s, %s", t.ID, asanaError.Message))
 	} else {
 		logger.Debug().Msg(fmt.Sprintf("Created comment in task %s", t.ID))
+	}
+}
+
+// GetFirstValidCustomFieldWithFetching returns first valid custom field with doing fetch of project
+func GetFirstValidCustomFieldWithFetching(projects []*asana.Project, client *asana.Client, cf string) (*asana.CustomField, *asana.Error) {
+	for _, p := range projects {
+		err := p.Fetch(client)
+		if err != nil {
+			continue
+		}
+
+		if f, _ := GetCustomField(p, cf); f != nil {
+			return f, nil
+		}
+	}
+
+	return nil, &asana.Error{
+		StatusCode: 404,
+		Message:    fmt.Sprintf("Custom field '%s' not found", cf),
+		Type:       "not_found",
+		Help:       fmt.Sprintf("Create custom field '%s' in project", cf),
+	}
+}
+
+// UpdateAsanaTaskLastCommitInfo updates asana task last commit info
+func UpdateAsanaTaskLastCommitInfo(
+	client *asana.Client,
+	asanaURL *entities.AsanaURL,
+	lastCommitMessage string,
+	lastCommitURL string,
+	commitFieldName string,
+	logger *zerolog.Logger,
+) {
+	t := &asana.Task{ID: asanaURL.TaskID}
+
+	err := t.Fetch(client)
+	if err != nil {
+		e := err.(*asana.Error)
+		logger.Info().Msg(fmt.Sprintf("Failed to fetch asana task %s, %s", asanaURL.TaskID, e.Message))
+		return
+	}
+
+	// todo: replace GetFirstValidCustomFieldWithFetching after merging PR in bitbucket
+	lastCommitField, asanaErr := GetFirstValidCustomFieldWithFetching(t.Projects, client, commitFieldName)
+	filteredMessage := RemoveAsanaURLS(lastCommitMessage)
+
+	if asanaErr != nil {
+		logger.Info().Msg(fmt.Sprintf("Failed to get custom field %s, %s", commitFieldName, asanaErr.Message))
+		comment := fmt.Sprintf("%s\n\n %s", lastCommitURL, filteredMessage)
+		CreateTaskCommentWithLogs(t, client, &comment, logger)
+		return
+	}
+
+	err = t.Update(client, &asana.UpdateTaskRequest{
+		CustomFields: map[string]interface{}{
+			lastCommitField.ID: lastCommitURL,
+		},
+	})
+
+	if err != nil {
+		e := err.(*asana.Error)
+		logger.Info().Msg(fmt.Sprintf("Failed to update asana task %s, %s", asanaURL.TaskID, e.Message))
+		comment := fmt.Sprintf("%s\n\n %s", lastCommitURL, filteredMessage)
+		CreateTaskCommentWithLogs(t, client, &comment, logger)
 	}
 }

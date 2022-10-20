@@ -140,9 +140,13 @@ type GitlabPushRequestHook struct {
 	TotalCommitsCount int `json:"total_commits_count"`
 }
 
+// GitlabRequestObjectName represents the object name of a Gitlab request
 type GitlabRequestObjectName string
 
 const (
+	// GitlabRequestObjectNameMergeRequest represents a merge request object name
 	GitlabRequestObjectNameMergeRequest GitlabRequestObjectName = "merge_request"
-	GitlabRequestObjectNamePushRequest  GitlabRequestObjectName = "push"
+
+	// GitlabRequestObjectNamePushRequest represents a push request object name
+	GitlabRequestObjectNamePushRequest GitlabRequestObjectName = "push"
 )
