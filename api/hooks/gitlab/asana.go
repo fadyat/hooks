@@ -3,7 +3,6 @@ package gitlab
 import (
 	"bitbucket.org/mikehouston/asana-go"
 	"errors"
-	"fmt"
 	"github.com/fadyat/hooks/api"
 	"github.com/fadyat/hooks/api/entities"
 	"github.com/fadyat/hooks/api/helpers"
@@ -11,7 +10,6 @@ import (
 	"github.com/rs/zerolog/log"
 	"golang.org/x/exp/slices"
 	"net/http"
-	"strings"
 )
 
 // MergeRequestAsana godoc
@@ -52,10 +50,7 @@ func MergeRequestAsana(c *gin.Context) {
 		return
 	}
 
-	const cutset string = "\f\t\r\n "
 	lastCommit := gitlabRequest.ObjectAttributes.LastCommit
-	lastCommitURL := strings.Trim(lastCommit.URL, cutset)
-
 	urls := helpers.GetAsanaURLS(lastCommit.Message)
 	if len(urls) == 0 {
 		logger.Info().Msg("No asana URLS found")
@@ -63,43 +58,14 @@ func MergeRequestAsana(c *gin.Context) {
 
 	client := asana.NewClientWithAccessToken(cfg.AsanaAPIKey)
 	for _, asanaURL := range urls {
-		// todo: take project from task fetching
-		p := &asana.Project{ID: asanaURL.ProjectID}
-
-		err := p.Fetch(client)
-		if err != nil {
-			e := err.(*asana.Error)
-			logger.Info().Msg(fmt.Sprintf("Failed to fetch asana project %s, %s", asanaURL.ProjectID, e.Message))
-			continue
-		}
-
-		t := &asana.Task{ID: asanaURL.TaskID}
-
-		lastCommitField, asanaErr := helpers.GetCustomField(p, cfg.LastCommitFieldName)
-		filteredMessage := helpers.RemoveAsanaURLS(lastCommit.Message)
-
-		if asanaErr != nil {
-			logger.Info().Msg(fmt.Sprintf("Failed to get custom field %s, %s", cfg.LastCommitFieldName, asanaErr.Message))
-			comment := fmt.Sprintf("%s\n\n %s", lastCommit.URL, filteredMessage)
-			helpers.CreateTaskCommentWithLogs(t, client, &comment, &logger)
-			continue
-		}
-
-		err = t.Update(client, &asana.UpdateTaskRequest{
-			CustomFields: map[string]interface{}{
-				lastCommitField.ID: lastCommitURL,
-			},
-		})
-
-		if err != nil {
-			e := err.(*asana.Error)
-			logger.Info().Msg(fmt.Sprintf("Failed to update asana task %s, %s", asanaURL.TaskID, e.Message))
-			comment := fmt.Sprintf("%s\n\n %s", lastCommit.URL, filteredMessage)
-			helpers.CreateTaskCommentWithLogs(t, client, &comment, &logger)
-			continue
-		}
-
-		logger.Debug().Msg(fmt.Sprintf("Updated asana task %s", asanaURL.TaskID))
+		helpers.UpdateAsanaTaskLastCommitInfo(
+			client,
+			asanaURL,
+			lastCommit.Message,
+			lastCommit.URL,
+			cfg.LastCommitFieldName,
+			&logger,
+		)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
@@ -142,8 +108,8 @@ func PushRequestAsana(c *gin.Context) {
 		return
 	}
 
-	// todo: is it really last commit?
-	lastCommit := gitlabRequest.Commits[len(gitlabRequest.Commits)-1]
+	// todo: is it really first commit?
+	lastCommit := gitlabRequest.Commits[0]
 
 	urls := helpers.GetAsanaURLS(lastCommit.Message)
 	if len(urls) == 0 {
@@ -152,39 +118,15 @@ func PushRequestAsana(c *gin.Context) {
 
 	client := asana.NewClientWithAccessToken(cfg.AsanaAPIKey)
 	for _, asanaURL := range urls {
-		// todo: take project from task fetching
-		p := &asana.Project{ID: asanaURL.ProjectID}
-
-		err := p.Fetch(client)
-		if err != nil {
-			e := err.(*asana.Error)
-			logger.Info().Msg(fmt.Sprintf("Failed to fetch asana project %s, %s", asanaURL.ProjectID, e.Message))
-			continue
-		}
-
-		t := &asana.Task{ID: asanaURL.TaskID}
-		lastCommitField, asanaErr := helpers.GetCustomField(p, cfg.LastCommitFieldName)
-		filteredMessage := helpers.RemoveAsanaURLS(lastCommit.Message)
-
-		if asanaErr != nil {
-			logger.Info().Msg(fmt.Sprintf("Failed to get custom field %s, %s", cfg.LastCommitFieldName, asanaErr.Message))
-			comment := fmt.Sprintf("%s\n\n %s", lastCommit.URL, filteredMessage)
-			helpers.CreateTaskCommentWithLogs(t, client, &comment, &logger)
-			continue
-		}
-
-		err = t.Update(client, &asana.UpdateTaskRequest{
-			CustomFields: map[string]interface{}{
-				lastCommitField.ID: lastCommit.URL,
-			},
-		})
-
-		if err != nil {
-			e := err.(*asana.Error)
-			logger.Info().Msg(fmt.Sprintf("Failed to update asana task %s, %s", asanaURL.TaskID, e.Message))
-			comment := fmt.Sprintf("%s\n\n %s", lastCommit.URL, filteredMessage)
-			helpers.CreateTaskCommentWithLogs(t, client, &comment, &logger)
-			continue
-		}
+		helpers.UpdateAsanaTaskLastCommitInfo(
+			client,
+			asanaURL,
+			lastCommit.Message,
+			lastCommit.URL,
+			cfg.LastCommitFieldName,
+			&logger,
+		)
 	}
+
+	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
