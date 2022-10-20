@@ -163,6 +163,117 @@ definitions:
             type: string
         type: object
     type: object
+  entities.GitlabPushRequestHook:
+    properties:
+      after:
+        type: string
+      before:
+        type: string
+      checkout_sha:
+        type: string
+      commits:
+        items:
+          properties:
+            added:
+              items:
+                type: string
+              type: array
+            author:
+              properties:
+                email:
+                  type: string
+                name:
+                  type: string
+              type: object
+            id:
+              type: string
+            message:
+              type: string
+            modified:
+              items:
+                type: string
+              type: array
+            removed:
+              items: {}
+              type: array
+            timestamp:
+              type: string
+            title:
+              type: string
+            url:
+              type: string
+          type: object
+        type: array
+      event_name:
+        type: string
+      object_kind:
+        type: string
+      project:
+        properties:
+          avatar_url: {}
+          default_branch:
+            type: string
+          description:
+            type: string
+          git_http_url:
+            type: string
+          git_ssh_url:
+            type: string
+          homepage:
+            type: string
+          http_url:
+            type: string
+          id:
+            type: integer
+          name:
+            type: string
+          namespace:
+            type: string
+          path_with_namespace:
+            type: string
+          ssh_url:
+            type: string
+          url:
+            type: string
+          visibility_level:
+            type: integer
+          web_url:
+            type: string
+        type: object
+      project_id:
+        type: integer
+      ref:
+        type: string
+      repository:
+        properties:
+          description:
+            type: string
+          git_http_url:
+            type: string
+          git_ssh_url:
+            type: string
+          homepage:
+            type: string
+          name:
+            type: string
+          url:
+            type: string
+          visibility_level:
+            type: integer
+        type: object
+      total_commits_count:
+        type: integer
+      user_avatar:
+        type: string
+      user_email:
+        type: string
+      user_id:
+        type: integer
+      user_name:
+        type: string
+      user_username:
+        type: string
+    type: object
   gitlab.ErrorResponse:
     properties:
       error:
@@ -224,6 +335,46 @@ paths:
           schema:
             $ref: '#/definitions/gitlab.ErrorResponse'
       summary: Gitlab merge request hook
+      tags:
+      - gitlab
+  /api/v1/asana/push:
+    post:
+      consumes:
+      - application/json
+      description: Endpoint to set last commit url to custom field in asana task,
+        passed via commit message
+      parameters:
+      - description: Gitlab token
+        in: header
+        name: X-Gitlab-Token
+        required: true
+        type: string
+      - description: Gitlab push request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/entities.GitlabPushRequestHook'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gitlab.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gitlab.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gitlab.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gitlab.ErrorResponse'
+      summary: Gitlab push request hook
       tags:
       - gitlab
   /api/v1/ping:

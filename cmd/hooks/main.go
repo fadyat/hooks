@@ -51,6 +51,7 @@ func main() {
 	baseAPI.GET("/ping", ping)
 	asanaHooks := baseAPI.Group("/asana")
 	asanaHooks.POST("/merge", gitlab.MergeRequestAsana)
+	asanaHooks.POST("/push", gitlab.PushRequestAsana)
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	if err = r.Run(":80"); err != nil {
