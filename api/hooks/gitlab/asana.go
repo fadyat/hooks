@@ -60,7 +60,7 @@ func MergeRequestAsana(c *gin.Context) {
 	for _, asanaURL := range urls {
 		helpers.UpdateAsanaTaskLastCommitInfo(
 			client,
-			asanaURL,
+			&asanaURL,
 			lastCommit.Message,
 			lastCommit.URL,
 			cfg.LastCommitFieldName,
@@ -120,7 +120,7 @@ func PushRequestAsana(c *gin.Context) {
 	for _, asanaURL := range urls {
 		helpers.UpdateAsanaTaskLastCommitInfo(
 			client,
-			asanaURL,
+			&asanaURL,
 			lastCommit.Message,
 			lastCommit.URL,
 			cfg.LastCommitFieldName,

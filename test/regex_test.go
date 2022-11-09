@@ -112,6 +112,24 @@ var asanaRegexTests = []asanaURLSRegexTestModel{
 			},
 		},
 	},
+	{
+		"ref|1203075826621875\n",
+		[]entities.AsanaURL{
+			{
+				Option: "",
+				TaskID: "1203075826621875",
+			},
+		},
+	},
+	{
+		"ref|https://app.asana.com/0/1202951998943680/1203075826621875/f\n",
+		[]entities.AsanaURL{
+			{
+				Option: "",
+				TaskID: "1203075826621875",
+			},
+		},
+	},
 }
 
 func TestAsanaURLRegex(t *testing.T) {
