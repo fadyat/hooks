@@ -1,5 +1,28 @@
 ## Hooks between services
 
+### When triggered?
+
+[From gitlab docs:](https://docs.gitlab.com/ee/user/project/integrations/webhook_events.html#merge-request-events)
+
+```text
+Merge request events are triggered when:
+
+- A new merge request is created.
+- An existing merge request is updated, approved (by all required approvers), unapproved, merged, or closed.
+- An individual user adds or removes their approval to an existing merge request.
+- A commit is added in the source branch.
+- All threads are resolved on the merge request.
+```
+
+### Which actions are supported?
+
+```text
+Supported actions:
+- open
+- update
+- merge
+```
+
 ### Gitlab to:
 
 - **Asana**

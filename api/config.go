@@ -18,6 +18,9 @@ type HTTPAPI struct {
 
 	// Asana message field name in task
 	MessageCommitFieldName string `envconfig:"MESSAGE_COMMIT_FIELD_NAME" required:"true" default:"Message"`
+
+	// Supported Gitlab merge request actions
+	SupportedMergeRequestActions []string `envconfig:"SUPPORTED_MERGE_REQUEST_ACTIONS" required:"true" default:"open,update,merge"`
 }
 
 // LoadConfig loads the configuration from the environment

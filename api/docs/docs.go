@@ -83,65 +83,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/asana/push": {
-            "post": {
-                "description": "Endpoint to set last commit url to custom field in asana task, passed via commit message",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "gitlab"
-                ],
-                "summary": "Gitlab push request hook",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Gitlab token",
-                        "name": "X-Gitlab-Token",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "Gitlab push request",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entities.GitlabPushRequestHook"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/gitlab.SuccessResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/gitlab.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/gitlab.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/gitlab.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/ping": {
             "get": {
                 "consumes": [
@@ -168,38 +109,28 @@ const docTemplate = `{
         "entities.GitlabMergeRequestHook": {
             "type": "object",
             "properties": {
-                "assignees": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "avatar_url": {
-                                "type": "string"
-                            },
-                            "id": {
-                                "type": "integer"
-                            },
-                            "name": {
-                                "type": "string"
-                            },
-                            "username": {
-                                "type": "string"
+                "changes": {
+                    "type": "object",
+                    "properties": {
+                        "merge_status": {
+                            "type": "object",
+                            "properties": {
+                                "current": {
+                                    "type": "string"
+                                },
+                                "previous": {
+                                    "type": "string"
+                                }
                             }
                         }
                     }
-                },
-                "changes": {
-                    "type": "object",
-                    "additionalProperties": true
                 },
                 "event_type": {
                     "type": "string"
                 },
                 "labels": {
                     "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                    "items": {}
                 },
                 "object_attributes": {
                     "type": "object",
@@ -207,14 +138,10 @@ const docTemplate = `{
                         "action": {
                             "type": "string"
                         },
-                        "assignee_id": {
-                            "type": "integer"
-                        },
+                        "assignee_id": {},
                         "assignee_ids": {
                             "type": "array",
-                            "items": {
-                                "type": "integer"
-                            }
+                            "items": {}
                         },
                         "author_id": {
                             "type": "integer"
@@ -228,16 +155,26 @@ const docTemplate = `{
                         "description": {
                             "type": "string"
                         },
+                        "detailed_merge_status": {
+                            "type": "string"
+                        },
                         "first_contribution": {
                             "type": "boolean"
                         },
+                        "head_pipeline_id": {},
+                        "human_time_change": {},
+                        "human_time_estimate": {},
+                        "human_total_time_spent": {},
                         "id": {
                             "type": "integer"
                         },
                         "iid": {
                             "type": "integer"
                         },
-                        "labels": {},
+                        "labels": {
+                            "type": "array",
+                            "items": {}
+                        },
                         "last_commit": {
                             "type": "object",
                             "properties": {
@@ -258,10 +195,25 @@ const docTemplate = `{
                                 "message": {
                                     "type": "string"
                                 },
-                                "timestamp": {
+                                "title": {
                                     "type": "string"
                                 },
                                 "url": {
+                                    "description": "Timestamp time.Time ` + "`" + `json:\"timestamp\"` + "`" + `",
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "last_edited_at": {},
+                        "last_edited_by_id": {},
+                        "merge_commit_sha": {
+                            "type": "string"
+                        },
+                        "merge_error": {},
+                        "merge_params": {
+                            "type": "object",
+                            "properties": {
+                                "force_remove_source_branch": {
                                     "type": "string"
                                 }
                             }
@@ -269,40 +221,26 @@ const docTemplate = `{
                         "merge_status": {
                             "type": "string"
                         },
-                        "milestone_id": {
-                            "type": "string"
+                        "merge_user_id": {},
+                        "merge_when_pipeline_succeeds": {
+                            "type": "boolean"
                         },
+                        "milestone_id": {},
                         "reviewer_ids": {
                             "type": "array",
-                            "items": {
-                                "type": "integer"
-                            }
+                            "items": {}
                         },
                         "source": {
                             "type": "object",
-                            "additionalProperties": true
-                        },
-                        "source_branch": {
-                            "type": "string"
-                        },
-                        "source_project_id": {
-                            "type": "integer"
-                        },
-                        "state": {
-                            "type": "string"
-                        },
-                        "target": {
-                            "type": "object",
                             "properties": {
-                                "avatar_url": {
+                                "avatar_url": {},
+                                "ci_config_path": {
                                     "type": "string"
                                 },
                                 "default_branch": {
                                     "type": "string"
                                 },
-                                "description": {
-                                    "type": "string"
-                                },
+                                "description": {},
                                 "git_http_url": {
                                     "type": "string"
                                 },
@@ -314,6 +252,70 @@ const docTemplate = `{
                                 },
                                 "http_url": {
                                     "type": "string"
+                                },
+                                "id": {
+                                    "type": "integer"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "namespace": {
+                                    "type": "string"
+                                },
+                                "path_with_namespace": {
+                                    "type": "string"
+                                },
+                                "ssh_url": {
+                                    "type": "string"
+                                },
+                                "url": {
+                                    "type": "string"
+                                },
+                                "visibility_level": {
+                                    "type": "integer"
+                                },
+                                "web_url": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "source_branch": {
+                            "type": "string"
+                        },
+                        "source_project_id": {
+                            "type": "integer"
+                        },
+                        "state": {
+                            "type": "string"
+                        },
+                        "state_id": {
+                            "type": "integer"
+                        },
+                        "target": {
+                            "type": "object",
+                            "properties": {
+                                "avatar_url": {},
+                                "ci_config_path": {
+                                    "type": "string"
+                                },
+                                "default_branch": {
+                                    "type": "string"
+                                },
+                                "description": {},
+                                "git_http_url": {
+                                    "type": "string"
+                                },
+                                "git_ssh_url": {
+                                    "type": "string"
+                                },
+                                "homepage": {
+                                    "type": "string"
+                                },
+                                "http_url": {
+                                    "type": "string"
+                                },
+                                "id": {
+                                    "type": "integer"
                                 },
                                 "name": {
                                     "type": "string"
@@ -344,12 +346,22 @@ const docTemplate = `{
                         "target_project_id": {
                             "type": "integer"
                         },
+                        "time_change": {
+                            "type": "integer"
+                        },
+                        "time_estimate": {
+                            "type": "integer"
+                        },
                         "title": {
                             "type": "string"
+                        },
+                        "total_time_spent": {
+                            "type": "integer"
                         },
                         "updated_at": {
                             "type": "string"
                         },
+                        "updated_by_id": {},
                         "url": {
                             "type": "string"
                         },
@@ -363,132 +375,15 @@ const docTemplate = `{
                 },
                 "project": {
                     "type": "object",
-                    "additionalProperties": true
-                },
-                "repository": {
-                    "type": "object",
-                    "additionalProperties": true
-                },
-                "reviewers": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "avatar_url": {
-                                "type": "string"
-                            },
-                            "id": {
-                                "type": "integer"
-                            },
-                            "name": {
-                                "type": "string"
-                            },
-                            "username": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                },
-                "user": {
-                    "type": "object",
-                    "properties": {
-                        "avatar_url": {
-                            "type": "string"
-                        },
-                        "email": {
-                            "type": "string"
-                        },
-                        "id": {
-                            "type": "integer"
-                        },
-                        "name": {
-                            "type": "string"
-                        },
-                        "username": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "entities.GitlabPushRequestHook": {
-            "type": "object",
-            "properties": {
-                "after": {
-                    "type": "string"
-                },
-                "before": {
-                    "type": "string"
-                },
-                "checkout_sha": {
-                    "type": "string"
-                },
-                "commits": {
-                    "type": "array",
-                    "items": {
-                        "type": "object",
-                        "properties": {
-                            "added": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
-                                }
-                            },
-                            "author": {
-                                "type": "object",
-                                "properties": {
-                                    "email": {
-                                        "type": "string"
-                                    },
-                                    "name": {
-                                        "type": "string"
-                                    }
-                                }
-                            },
-                            "id": {
-                                "type": "string"
-                            },
-                            "message": {
-                                "type": "string"
-                            },
-                            "modified": {
-                                "type": "array",
-                                "items": {
-                                    "type": "string"
-                                }
-                            },
-                            "removed": {
-                                "type": "array",
-                                "items": {}
-                            },
-                            "timestamp": {
-                                "type": "string"
-                            },
-                            "title": {
-                                "type": "string"
-                            },
-                            "url": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                },
-                "event_name": {
-                    "type": "string"
-                },
-                "object_kind": {
-                    "type": "string"
-                },
-                "project": {
-                    "type": "object",
                     "properties": {
                         "avatar_url": {},
+                        "ci_config_path": {
+                            "type": "string"
+                        },
                         "default_branch": {
                             "type": "string"
                         },
-                        "description": {
-                            "type": "string"
-                        },
+                        "description": {},
                         "git_http_url": {
                             "type": "string"
                         },
@@ -527,24 +422,10 @@ const docTemplate = `{
                         }
                     }
                 },
-                "project_id": {
-                    "type": "integer"
-                },
-                "ref": {
-                    "type": "string"
-                },
                 "repository": {
                     "type": "object",
                     "properties": {
-                        "description": {
-                            "type": "string"
-                        },
-                        "git_http_url": {
-                            "type": "string"
-                        },
-                        "git_ssh_url": {
-                            "type": "string"
-                        },
+                        "description": {},
                         "homepage": {
                             "type": "string"
                         },
@@ -553,29 +434,28 @@ const docTemplate = `{
                         },
                         "url": {
                             "type": "string"
-                        },
-                        "visibility_level": {
-                            "type": "integer"
                         }
                     }
                 },
-                "total_commits_count": {
-                    "type": "integer"
-                },
-                "user_avatar": {
-                    "type": "string"
-                },
-                "user_email": {
-                    "type": "string"
-                },
-                "user_id": {
-                    "type": "integer"
-                },
-                "user_name": {
-                    "type": "string"
-                },
-                "user_username": {
-                    "type": "string"
+                "user": {
+                    "type": "object",
+                    "properties": {
+                        "avatar_url": {
+                            "type": "string"
+                        },
+                        "email": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "integer"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "username": {
+                            "type": "string"
+                        }
+                    }
                 }
             }
         },
