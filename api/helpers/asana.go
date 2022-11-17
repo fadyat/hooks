@@ -82,9 +82,8 @@ func RemoveAsanaURLS(message string) string {
 	message = asanaURLRe.ReplaceAllString(message, "")
 	asanaIDRe := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|(\d+)`)
 	message = asanaIDRe.ReplaceAllString(message, "")
-	message = regexp.MustCompile(`\s+`).ReplaceAllString(message, " ")
 	message = regexp.MustCompile(`\n+`).ReplaceAllString(message, "\n")
-	message = strings.TrimSpace(message)
+	message = regexp.MustCompile(`[\t ]+`).ReplaceAllString(message, " ")
 	return message
 }
 
@@ -147,7 +146,7 @@ func UpdateAsanaTaskLastCommitInfo(
 
 	if asanaErr != nil {
 		logger.Info().Msg(fmt.Sprintf("Failed to get custom field %s, %s", commitFieldName, asanaErr.Message))
-		comment := fmt.Sprintf("%s\n\n %s", lastCommitURL, filteredMessage)
+		comment := fmt.Sprintf("%s\n\n%s", lastCommitURL, filteredMessage)
 		CreateTaskCommentWithLogs(t, client, &comment, logger)
 		return
 	}

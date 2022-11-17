@@ -130,7 +130,12 @@ func MergeRequestAsana(c *gin.Context) {
 			}
 
 			mergeCommit := fmt.Sprintf("%s/commits/%s", gitlabRequest.Project.WebURL, gitlabRequest.ObjectAttributes.MergeCommitSha)
-			mergeMsg := fmt.Sprintf("Merged in %s (%s)", gitlabRequest.ObjectAttributes.SourceBranch, mergeCommit)
+			mergeMsg := fmt.Sprintf(
+				"%s\n\nMerge branch '%s' into '%s'",
+				mergeCommit,
+				gitlabRequest.ObjectAttributes.SourceBranch,
+				gitlabRequest.ObjectAttributes.TargetBranch,
+			)
 			helpers.CreateTaskCommentWithLogs(t, client, &mergeMsg, &logger)
 		}
 
