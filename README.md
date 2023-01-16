@@ -1,62 +1,42 @@
 ## Hooks between services
 
-### When triggered?
+### Workflow
 
-[From gitlab docs:](https://docs.gitlab.com/ee/user/project/integrations/webhook_events.html#merge-request-events)
+Updates:
 
-```text
-Merge request events are triggered when:
+- **Last Commit** task field
+- **Message** task field
+- Works for multiple passed tasks
 
-- A new merge request is created.
-- An existing merge request is updated, approved (by all required approvers), unapproved, merged, or closed.
-- An individual user adds or removes their approval to an existing merge request.
-- A commit is added in the source branch.
-- All threads are resolved on the merge request.
-```
-
-### Which actions are supported?
+Pass a task to a commit message with the following syntax:
 
 ```text
-Supported actions:
-- open
-- update
-- merge
+- #|ref|https://app.asana.com/#/#/#
+- ref|https://app.asana.com/#/#/#
+- #|ref|<asana-task-id>
+- ref|<asana-task-id>
 ```
 
-### Gitlab to:
+### Gitlab integration
 
-- **Asana**
-    ```text
-    Merge request:
-  
-    ---
-    Description:
-    ---
-    Updates:
-    - <Last Commit> task field
-    - <Message> task field
-    - Works for multiple passed tasks
+#### How to use:
 
-    How it works: finds a line in the last commit message, for example:
-    - #|ref|https://app.asana.com/#/#/#
-    - ref|https://app.asana.com/#/#/#
-    - #|ref|<asana-task-id>
-    - ref|<asana-task-id>
+```text
+- Set up a service (configuration section)
+- Launch service (could use ngrok for local testing)
+- Set up a webhook in Gitlab:
+    - URL: https://<service>/api/v1/asana/push
+    - Secret Token: <your-secret-token>
+    - Trigger: Push events
+```
 
-    ---
-    How to use:
-    ---
-    - Setup a service (check the example below)
-    - Launch service (could use ngrok for local testing)
-    - Setup a webhook in Gitlab:
-        - URL: https://<your service url>/api/v1/asana/merge
-        - Secret Token: <your-secret-token>
-        - Trigger: Merge Request Events
-    - Add a asana task url to the last commit message
-    - Create pull request
-    - Check the webhook logs
-    - Check the task in Asana
-    ```
+> Also may use merge request handler:
+> ```text
+> Supported merge hook actions: open, update, merge
+> - URL: https://<service>/api/v1/asana/merge
+> - Trigger: Merge request events
+> ```
+
 
 ## Configuration
 
@@ -79,7 +59,7 @@ make up
 ## Documentation
 
 ```text
-When service is running: http://localhost:80/swagger/index.html
+When service is running: https://<service>:80/swagger/index.html
 In project: /api/docs/swagger.yaml
 
 Library: https://github.com/swaggo/gin-swagger

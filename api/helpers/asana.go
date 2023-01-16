@@ -164,3 +164,17 @@ func UpdateAsanaTaskLastCommitInfo(
 		CreateTaskCommentWithLogs(t, client, &comment, logger)
 	}
 }
+
+func TakeUniqueAsanaURLs(asanaURLs []entities.AsanaURL) []entities.AsanaURL {
+	unique := make(map[string]entities.AsanaURL)
+	for _, url := range asanaURLs {
+		unique[url.TaskID] = url
+	}
+
+	var result []entities.AsanaURL
+	for _, url := range unique {
+		result = append(result, url)
+	}
+
+	return result
+}
