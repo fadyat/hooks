@@ -50,7 +50,7 @@ func GetCustomField(p *asana.Project, name string) (*asana.CustomField, *asana.E
 
 // GetAsanaURLS returns asana urls from commit message
 func GetAsanaURLS(message string) []entities.AsanaURL {
-	asanaURLRe := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|https?://app\.asana\.com/\d+/\d+/(\d+)/?\w*`)
+	asanaURLRe := regexp.MustCompile(`([a-zA-Z]+)?[|_:=-]?ref[|_:=-]https?://app\.asana\.com/\d+/\d+/(\d+)/?\w*`)
 	var urls []entities.AsanaURL
 	for _, url := range asanaURLRe.FindAllString(message, -1) {
 		submatch := asanaURLRe.FindStringSubmatch(url)[1:] // [0] is the whole match
@@ -62,7 +62,7 @@ func GetAsanaURLS(message string) []entities.AsanaURL {
 		}
 	}
 
-	asanaIDRe := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|(\d+)`)
+	asanaIDRe := regexp.MustCompile(`([a-zA-Z]+)?[|_:=-]?ref[|_:=-](\d+)`)
 	for _, url := range asanaIDRe.FindAllString(message, -1) {
 		submatch := asanaIDRe.FindStringSubmatch(url)[1:] // [0] is the whole match
 		if len(submatch) == asanaURLRe.NumSubexp() {
@@ -78,13 +78,13 @@ func GetAsanaURLS(message string) []entities.AsanaURL {
 
 // RemoveAsanaURLS removes asana urls from commit message
 func RemoveAsanaURLS(message string) string {
-	asanaURLRe := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|https?://app\.asana\.com/\d+/(\d+)/(\d+)/?\w*`)
+	asanaURLRe := regexp.MustCompile(`([a-zA-Z]+)?[|_:=-]?ref[|_:=-]https?://app\.asana\.com/\d+/(\d+)/(\d+)/?\w*`)
 	message = asanaURLRe.ReplaceAllString(message, "")
-	asanaIDRe := regexp.MustCompile(`([a-zA-Z]+)?\|?ref\|(\d+)`)
+	asanaIDRe := regexp.MustCompile(`([a-zA-Z]+)?[|_:=-]?ref[|_:=-](\d+)`)
 	message = asanaIDRe.ReplaceAllString(message, "")
 	message = regexp.MustCompile(`\n+`).ReplaceAllString(message, "\n")
 	message = regexp.MustCompile(`[\t ]+`).ReplaceAllString(message, " ")
-	return message
+	return strings.TrimSpace(message)
 }
 
 // CreateTaskCommentWithLogs creates task comment with logs
