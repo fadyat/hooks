@@ -184,6 +184,11 @@ func PushRequestAsana(c *gin.Context) {
 		return
 	}
 
+	if len(gitlabRequest.Commits) == 0 {
+		helpers.EndWithError(c, errors.New("no commits found"), http.StatusBadRequest, &log.Logger)
+		return
+	}
+
 	sort.SliceStable(gitlabRequest.Commits, func(i, j int) bool {
 		return gitlabRequest.Commits[i].Timestamp.Before(gitlabRequest.Commits[j].Timestamp)
 	})
