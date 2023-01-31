@@ -122,6 +122,7 @@ func MergeRequestAsana(c *gin.Context) {
 
 	if action == entities.MergeAction {
 		for _, taskID := range allPrAsanaTasks[prLink] {
+			// fixme:
 			t := &asana.Task{ID: taskID}
 			err := t.Fetch(client)
 			if err != nil {
@@ -197,7 +198,6 @@ func PushRequestAsana(c *gin.Context) {
 	lastCommit := gitlabRequest.Commits[len(gitlabRequest.Commits)-1]
 
 	urls := helpers.GetAsanaURLS(lastCommit.Message)
-
 	if len(urls) == 0 {
 		log.Logger.Info().Msg("No asana URLS found")
 	}

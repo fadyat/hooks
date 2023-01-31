@@ -50,14 +50,15 @@ func GetCustomField(p *asana.Project, name string) (*asana.CustomField, *asana.E
 
 // GetAsanaURLS returns asana urls from commit message
 func GetAsanaURLS(message string) []entities.AsanaURL {
-	asanaURLRe := regexp.MustCompile(`([a-zA-Z]+)?[|_:=-]?ref[|_:=-]https?://app\.asana\.com/\d+/\d+/(\d+)/?\w*`)
+	asanaURLRe := regexp.MustCompile(`([a-zA-Z]+)?[|_:=-]?ref[|_:=-]https?://app\.asana\.com/\d+/(\d+)/(\d+)/?\w*`)
 	var urls []entities.AsanaURL
 	for _, url := range asanaURLRe.FindAllString(message, -1) {
 		submatch := asanaURLRe.FindStringSubmatch(url)[1:] // [0] is the whole match
 		if len(submatch) == asanaURLRe.NumSubexp() {
 			urls = append(urls, entities.AsanaURL{
-				Option: submatch[0],
-				TaskID: submatch[1],
+				Option:    submatch[0],
+				ProjectID: submatch[1],
+				TaskID:    submatch[2],
 			})
 		}
 	}
@@ -118,7 +119,7 @@ func UpdateAsanaTaskLastCommitInfo(
 	commitFieldName string,
 	logger *zerolog.Logger,
 ) {
-	t := &asana.Task{ID: asanaURL.TaskID}
+	t := &asana.Task{ID: asanaURL.TaskID, Projects: []*asana.Project{{ID: asanaURL.ProjectID}}}
 
 	err := t.Fetch(client)
 	if err != nil {
@@ -150,18 +151,4 @@ func UpdateAsanaTaskLastCommitInfo(
 		comment := fmt.Sprintf("%s\n\n %s", lastCommitURL, filteredMessage)
 		CreateTaskCommentWithLogs(t, client, &comment, logger)
 	}
-}
-
-func TakeUniqueAsanaURLs(asanaURLs []entities.AsanaURL) []entities.AsanaURL {
-	unique := make(map[string]entities.AsanaURL)
-	for _, url := range asanaURLs {
-		unique[url.TaskID] = url
-	}
-
-	var result []entities.AsanaURL
-	for _, url := range unique {
-		result = append(result, url)
-	}
-
-	return result
 }

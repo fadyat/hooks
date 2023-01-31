@@ -25,12 +25,14 @@ var asanaRegexTests = []asanaURLSRegexTestModel{
 		"ref|https://app.asana.com/0/1/2 ref|https://app.asana.com/0/3/4",
 		[]entities.AsanaURL{
 			{
-				Option: "",
-				TaskID: "2",
+				Option:    "",
+				TaskID:    "2",
+				ProjectID: "1",
 			},
 			{
-				Option: "",
-				TaskID: "4",
+				Option:    "",
+				TaskID:    "4",
+				ProjectID: "3",
 			},
 		},
 	},
@@ -42,8 +44,9 @@ var asanaRegexTests = []asanaURLSRegexTestModel{
 		"complete|ref|https://app.asana.com/0/1/2",
 		[]entities.AsanaURL{
 			{
-				Option: "complete",
-				TaskID: "2",
+				Option:    "complete",
+				TaskID:    "2",
+				ProjectID: "1",
 			},
 		},
 	},
@@ -51,12 +54,14 @@ var asanaRegexTests = []asanaURLSRegexTestModel{
 		"complete|ref|https://app.asana.com/0/1/2 close|ref|https://app.asana.com/0/2/3",
 		[]entities.AsanaURL{
 			{
-				Option: "complete",
-				TaskID: "2",
+				Option:    "complete",
+				TaskID:    "2",
+				ProjectID: "1",
 			},
 			{
-				Option: "close",
-				TaskID: "3",
+				Option:    "close",
+				TaskID:    "3",
+				ProjectID: "2",
 			},
 		},
 	},
@@ -72,8 +77,9 @@ var asanaRegexTests = []asanaURLSRegexTestModel{
 		"ref|https://app.asana.com/0/1/2/f",
 		[]entities.AsanaURL{
 			{
-				Option: "",
-				TaskID: "2",
+				Option:    "",
+				TaskID:    "2",
+				ProjectID: "1",
 			},
 		},
 	},
@@ -81,8 +87,9 @@ var asanaRegexTests = []asanaURLSRegexTestModel{
 		"ref|https://app.asana.com/0/1202951998943680/1203075826621875/f\n",
 		[]entities.AsanaURL{
 			{
-				Option: "",
-				TaskID: "1203075826621875",
+				Option:    "",
+				TaskID:    "1203075826621875",
+				ProjectID: "1202951998943680",
 			},
 		},
 	},
@@ -90,8 +97,9 @@ var asanaRegexTests = []asanaURLSRegexTestModel{
 		"ref-https://app.asana.com/0/1/2/f\n",
 		[]entities.AsanaURL{
 			{
-				Option: "",
-				TaskID: "2",
+				Option:    "",
+				TaskID:    "2",
+				ProjectID: "1",
 			},
 		},
 	},
@@ -99,8 +107,9 @@ var asanaRegexTests = []asanaURLSRegexTestModel{
 		"ref:https://app.asana.com/0/1/2/f\n",
 		[]entities.AsanaURL{
 			{
-				Option: "",
-				TaskID: "2",
+				Option:    "",
+				TaskID:    "2",
+				ProjectID: "1",
 			},
 		},
 	},
