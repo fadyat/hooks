@@ -184,23 +184,27 @@ func PushRequestAsana(c *gin.Context) {
 		return
 	}
 
-	urls := make([]entities.AsanaURL, 0)
-	for _, commit := range gitlabRequest.Commits {
-		urls = append(urls, helpers.GetAsanaURLS(commit.Message)...)
-	}
-
-	urls = helpers.TakeUniqueAsanaURLs(urls)
-	if len(urls) == 0 {
-		log.Logger.Info().Msg("No asana URLS found")
-	}
-
 	sort.SliceStable(gitlabRequest.Commits, func(i, j int) bool {
 		return gitlabRequest.Commits[i].Timestamp.Before(gitlabRequest.Commits[j].Timestamp)
 	})
 
 	client := asana.NewClientWithAccessToken(cfg.AsanaAPIKey)
 	lastCommit := gitlabRequest.Commits[len(gitlabRequest.Commits)-1]
+
+	urls := helpers.GetAsanaURLS(lastCommit.Message)
+
+	if len(urls) == 0 {
+		log.Logger.Info().Msg("No asana URLS found")
+	}
+
 	for _, u := range urls {
+		cachedLastCommitID, have := cachedLastCommits[u.TaskID]
+		if have && cachedLastCommitID == lastCommit.ID {
+			log.Logger.Debug().Msg(fmt.Sprintf("last commit %s already cached", lastCommit.URL))
+			continue
+		}
+
+		cachedLastCommits[u.TaskID] = lastCommit.ID
 		helpers.UpdateAsanaTaskLastCommitInfo(
 			client,
 			&u,
@@ -211,5 +215,6 @@ func PushRequestAsana(c *gin.Context) {
 		)
 	}
 
+	clearCache()
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})
 }
