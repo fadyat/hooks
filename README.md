@@ -17,14 +17,10 @@ In example below separator is `|`.
 ```text
 - #|ref|https://app.asana.com/#/#/#
 - ref|https://app.asana.com/#/#/#
-- #|ref|<asana-task-id>
-- ref|<asana-task-id>
 
 Not abstract examples:
 - complete|ref|https://app.asana.com/1/2/3
 - ref|https://app.asana.com/1/2/3
-- ref|123456789
-- ref-123456789
 ```
 
 ### Gitlab integration

@@ -62,17 +62,6 @@ func GetAsanaURLS(message string) []entities.AsanaURL {
 		}
 	}
 
-	asanaIDRe := regexp.MustCompile(`([a-zA-Z]+)?[|_:=-]?ref[|_:=-](\d+)`)
-	for _, url := range asanaIDRe.FindAllString(message, -1) {
-		submatch := asanaIDRe.FindStringSubmatch(url)[1:] // [0] is the whole match
-		if len(submatch) == asanaURLRe.NumSubexp() {
-			urls = append(urls, entities.AsanaURL{
-				Option: submatch[0],
-				TaskID: submatch[1],
-			})
-		}
-	}
-
 	return urls
 }
 
@@ -80,8 +69,6 @@ func GetAsanaURLS(message string) []entities.AsanaURL {
 func RemoveAsanaURLS(message string) string {
 	asanaURLRe := regexp.MustCompile(`([a-zA-Z]+)?[|_:=-]?ref[|_:=-]https?://app\.asana\.com/\d+/(\d+)/(\d+)/?\w*`)
 	message = asanaURLRe.ReplaceAllString(message, "")
-	asanaIDRe := regexp.MustCompile(`([a-zA-Z]+)?[|_:=-]?ref[|_:=-](\d+)`)
-	message = asanaIDRe.ReplaceAllString(message, "")
 	message = regexp.MustCompile(`\n+`).ReplaceAllString(message, "\n")
 	message = regexp.MustCompile(`[\t ]+`).ReplaceAllString(message, " ")
 	return strings.TrimSpace(message)

@@ -65,43 +65,8 @@ var asanaRegexTests = []asanaURLSRegexTestModel{
 		[]entities.AsanaURL{},
 	},
 	{
-		"ref|123123",
-		[]entities.AsanaURL{
-			{
-				Option: "",
-				TaskID: "123123",
-			},
-		},
-	},
-	{
-		"ref|123123 ref|123123",
-		[]entities.AsanaURL{
-			{
-				Option: "",
-				TaskID: "123123",
-			},
-			{
-				Option: "",
-				TaskID: "123123",
-			},
-		},
-	},
-	{
 		"ref|aboba",
 		[]entities.AsanaURL{},
-	},
-	{
-		"ref|https://app.asana.com/0/1/2 ref|123",
-		[]entities.AsanaURL{
-			{
-				Option: "",
-				TaskID: "2",
-			},
-			{
-				Option: "",
-				TaskID: "123",
-			},
-		},
 	},
 	{
 		"ref|https://app.asana.com/0/1/2/f",
@@ -109,15 +74,6 @@ var asanaRegexTests = []asanaURLSRegexTestModel{
 			{
 				Option: "",
 				TaskID: "2",
-			},
-		},
-	},
-	{
-		"ref|1203075826621875\n",
-		[]entities.AsanaURL{
-			{
-				Option: "",
-				TaskID: "1203075826621875",
 			},
 		},
 	},
@@ -189,15 +145,7 @@ var asanaMessageRegexTests = []asanaMessageRegexTestModel{
 		"ref|Added feature https://app.asana.com/0/1/2",
 	},
 	{
-		"ref|123123123 aboba",
-		"aboba",
-	},
-	{
-		"ref|123123123 aboba ref|123123123",
-		"aboba",
-	},
-	{
-		"ref|https://app.asana.com/0/1/2 aboba aboba ref|123",
+		"ref|https://app.asana.com/0/1/2 aboba aboba",
 		"aboba aboba",
 	},
 	{
