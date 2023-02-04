@@ -468,6 +468,46 @@ paths:
             type: string
       tags:
       - example
+  /api/v2/asana/push:
+    post:
+      consumes:
+      - application/json
+      description: Endpoint to set last commit url to custom field in asana task,
+        passed via branch name
+      parameters:
+      - description: Gitlab token
+        in: header
+        name: X-Gitlab-Token
+        required: true
+        type: string
+      - description: Gitlab push request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/entities.GitlabPushRequestHook'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/gitlab.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/gitlab.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/gitlab.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gitlab.ErrorResponse'
+      summary: Gitlab push request hook
+      tags:
+      - gitlab
 schemes:
 - http
 - https

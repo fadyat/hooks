@@ -38,6 +38,7 @@ func main() {
 	r := gin.New()
 	r.Use(gin.Recovery())
 	r.Use(api.LoggerMiddleware(&log.Logger))
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 	zerolog.TimeFieldFormat = time.RFC822
 
 	cfg, err := api.LoadConfig()
@@ -45,14 +46,18 @@ func main() {
 		log.Info().Err(err).Msg("Failed to load config")
 	}
 
-	baseAPI := r.Group("/api/v1")
-	baseAPI.Use(api.ConfigMiddleware(cfg))
+	v1 := r.Group("/api/v1")
+	v1.Use(api.ConfigMiddleware(cfg))
+	v1.GET("/ping", ping)
+	v1Asana := v1.Group("/asana")
+	v1Asana.POST("/merge", gitlab.MergeRequestAsana)
+	v1Asana.POST("/push", gitlab.PushRequestAsana)
 
-	baseAPI.GET("/ping", ping)
-	asanaHooks := baseAPI.Group("/asana")
-	asanaHooks.POST("/merge", gitlab.MergeRequestAsana)
-	asanaHooks.POST("/push", gitlab.PushRequestAsana)
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	v2 := r.Group("/api/v2")
+	v2.Use(api.ConfigMiddleware(cfg))
+	v2.GET("/ping", ping)
+	v2Asana := v2.Group("/asana")
+	v2Asana.POST("/push", gitlab.PushRequestAsanaV2)
 
 	if err = r.Run(":80"); err != nil {
 		log.Fatal().Err(err).Msg("Failed to start server")

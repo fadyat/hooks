@@ -162,6 +162,65 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/api/v2/asana/push": {
+            "post": {
+                "description": "Endpoint to set last commit url to custom field in asana task, passed via branch name",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "gitlab"
+                ],
+                "summary": "Gitlab push request hook",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Gitlab token",
+                        "name": "X-Gitlab-Token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Gitlab push request",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/entities.GitlabPushRequestHook"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/gitlab.SuccessResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/gitlab.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/gitlab.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/gitlab.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {

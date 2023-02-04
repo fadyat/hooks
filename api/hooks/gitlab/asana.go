@@ -154,7 +154,7 @@ func MergeRequestAsana(c *gin.Context) {
 // @Tags        gitlab
 // @Accept      json
 // @Produce     json
-// @Param       X-Gitlab-Token header   string                          true "Gitlab token"
+// @Param       X-Gitlab-Token header   string                         true "Gitlab token"
 // @Param       body           body     entities.GitlabPushRequestHook true "Gitlab push request"
 // @Success     200            {object} gitlab.SuccessResponse
 // @Failure     400            {object} gitlab.ErrorResponse
