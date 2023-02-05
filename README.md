@@ -8,11 +8,13 @@ Updates:
 - **Message** task field
 - Works for multiple passed tasks
 
-Pass a task to a commit message with the following syntax:
-
 As a separator can be used one of the following characters: `|`, `:`, `-`, `_`, `=`.
 
-In example below separator is `|`.
+In examples below separator is `|`.
+
+### V1
+
+Pass a task to a commit message with the following syntax:
 
 ```text
 - #|ref|https://app.asana.com/#/#/#
@@ -23,6 +25,18 @@ Not abstract examples:
 - ref|https://app.asana.com/1/2/3
 ```
 
+### V2
+
+Pass a asana task_id to a branch name with the following syntax:
+
+```text
+- asana|#
+
+Not abstract examples:
+- asana|123456789
+- asana_123456789
+```
+
 ### Gitlab integration
 
 #### How to use:
@@ -31,7 +45,12 @@ Not abstract examples:
 - Set up a service (configuration section)
 - Launch service (could use ngrok for local testing)
 - Set up a webhook in Gitlab:
+
+    v1. Supports marking in the commit message
     - URL: https://<service>/api/v1/asana/push
+
+    v2. Name branch with asana-<task_id>
+    - URL: https://<service>/api/v2/asana/push
     - Secret Token: <your-secret-token>
     - Trigger: Push events
 ```
@@ -42,7 +61,6 @@ Not abstract examples:
 > - URL: https://<service>/api/v1/asana/merge
 > - Trigger: Merge request events
 > ```
-
 
 ## Configuration
 
