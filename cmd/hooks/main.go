@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/fadyat/hooks/api"
 	_ "github.com/fadyat/hooks/api/docs"
-	"github.com/fadyat/hooks/api/hooks/gitlab"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -49,15 +48,7 @@ func main() {
 	v1 := r.Group("/api/v1")
 	v1.Use(api.ConfigMiddleware(cfg))
 	v1.GET("/ping", ping)
-	v1Asana := v1.Group("/asana")
-	v1Asana.POST("/merge", gitlab.MergeRequestAsana)
-	v1Asana.POST("/push", gitlab.PushRequestAsana)
-
-	v2 := r.Group("/api/v2")
-	v2.Use(api.ConfigMiddleware(cfg))
-	v2.GET("/ping", ping)
-	v2Asana := v2.Group("/asana")
-	v2Asana.POST("/push", gitlab.PushRequestAsanaV2)
+	_ = v1.Group("/asana")
 
 	if err = r.Run(":80"); err != nil {
 		log.Fatal().Err(err).Msg("Failed to start server")
