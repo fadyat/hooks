@@ -10,32 +10,23 @@ Updates:
 
 As a separator can be used one of the following characters: `|`, `:`, `-`, `_`, `=`.
 
-In examples below separator is `|`.
-
-### V1
-
-Pass a task to a commit message with the following syntax:
+Pass a task to a `commit message` with the following syntax or `name a branch` with the following syntax:
 
 ```text
-- #|ref|https://app.asana.com/#/#/#
-- ref|https://app.asana.com/#/#/#
-
-Not abstract examples:
-- complete|ref|https://app.asana.com/1/2/3
-- ref|https://app.asana.com/1/2/3
-```
-
-### V2
-
-Pass a asana task_id to a branch name with the following syntax:
-
-```text
-- asana|#
+Pattern:
+- asana|<task_id>
+- ref|<task_id>
 
 Not abstract examples:
 - asana|123456789
 - asana_123456789
+- ref=123456789
 ```
+
+### Some interesting cases:
+
+- If task passed in branch and in commit message, all tasks will be updated.
+- When merging a branch with following pattern, message will be created in the task.
 
 ### Gitlab integration
 
@@ -45,23 +36,10 @@ Not abstract examples:
 - Set up a service (configuration section)
 - Launch service (could use ngrok for local testing)
 - Set up a webhook in Gitlab:
-
-    v1. Supports marking in the commit message
-    - URL: https://<service>/api/v1/asana/push
-
-    v2. Name branch with asana-<task_id>
-    - URL: https://<service>/api/v2/asana/push
-
-    - Secret Token: <your-secret-token>
-    - Trigger: Push events
+    * URL: https://<service>/api/v1/asana/push
+    * Secret Token: <your-secret-token>
+    * Trigger: Push events
 ```
-
-> Also may use merge request handler:
-> ```text
-> Supported merge hook actions: open, update, merge
-> - URL: https://<service>/api/v1/asana/merge
-> - Trigger: Merge request events
-> ```
 
 ## Configuration
 
@@ -75,18 +53,13 @@ ASANA_API_KEY=<your api key>
 GITLAB_SECRET_TOKENS=<list of tokens> 
 ```
 
-## Build
-
-```bash
-make up
-```
-
 ## Documentation
 
 ```text
 When service is running: https://<service>:80/swagger/index.html
-In project: /api/docs/swagger.yaml
+```
 
-Library: https://github.com/swaggo/gin-swagger
-Recreate: make swag
+Recreate:
+```bash
+make swag
 ```
