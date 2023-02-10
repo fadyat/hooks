@@ -2,15 +2,9 @@
 
 ### Workflow
 
-Updates:
-
-- **Last Commit** task field
-- **Message** task field
-- Works for multiple passed tasks
+Pass a task to a `commit message` with the following syntax or `name a branch` with the following syntax:
 
 As a separator can be used one of the following characters: `|`, `:`, `-`, `_`, `=`.
-
-Pass a task to a `commit message` with the following syntax or `name a branch` with the following syntax:
 
 ```text
 Pattern:
@@ -22,6 +16,8 @@ Not abstract examples:
 - asana_123456789
 - ref=123456789
 ```
+
+Works for multiple passed tasks.
 
 ### Some interesting cases:
 
@@ -35,10 +31,19 @@ Not abstract examples:
 ```text
 - Set up a service (configuration section)
 - Launch service (could use ngrok for local testing)
-- Set up a webhook in Gitlab:
-    * URL: https://<service>/api/v1/asana/push
+- Set up a webhook in Gitlab
+    * URL: <endpoint>
     * Secret Token: <your-secret-token>
     * Trigger: Push events
+```
+
+#### Endpoints:
+
+```text
+- POST /api/v1/asana/push
+  * last commit info to a task. (to custom field or comment)
+- POST /api/v1/gitlab/merge
+  * binding a short link of the asana task to the description of MR
 ```
 
 ## Configuration
@@ -51,6 +56,10 @@ ASANA_API_KEY=<your api key>
 
 // secret tokens that will be used to verify the webhook
 GITLAB_SECRET_TOKENS=<list of tokens> 
+
+// gitlab api key for updating the merge request description
+// sure, that generated token has access to the project!
+GITLAB_API_KEY=<your api key>
 ```
 
 ## Documentation
@@ -60,6 +69,7 @@ When service is running: https://<service>:80/swagger/index.html
 ```
 
 Recreate:
+
 ```bash
 make swag
 ```
