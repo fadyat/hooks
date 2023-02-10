@@ -1,4 +1,4 @@
-package api
+package config
 
 import (
 	"github.com/joho/godotenv"
@@ -15,16 +15,10 @@ type HTTPAPI struct {
 
 	// Asana last commit field name in task
 	LastCommitFieldName string `envconfig:"LAST_COMMIT_FIELD_NAME" required:"true" default:"Last Commit"`
-
-	// Asana message field name in task
-	MessageCommitFieldName string `envconfig:"MESSAGE_COMMIT_FIELD_NAME" required:"true" default:"Message"`
-
-	// Supported Gitlab merge request actions
-	SupportedMergeRequestActions []string `envconfig:"SUPPORTED_MERGE_REQUEST_ACTIONS" required:"true" default:"open,update,merge"`
 }
 
-// LoadConfig loads the configuration from the environment
-func LoadConfig() (*HTTPAPI, error) {
+// Load loads the configuration from the environment
+func Load() (*HTTPAPI, error) {
 	if err := godotenv.Load(); err != nil {
 		return nil, err
 	}
