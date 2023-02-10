@@ -92,8 +92,8 @@ func (h *GitlabHandler) UpdateLastCommitInfo(c *gin.Context) {
 // UpdateMergeRequestDescription updates the merge request description with the task info
 // @Description Update merge request description with the task info
 // @Accept      json
-// @Param       X-Gitlab-Event header   string                 true "Gitlab event"
-// @Param       X-Gitlab-Token header   string                 true "Gitlab token"
+// @Param       X-Gitlab-Event header   string                  true "Gitlab event"
+// @Param       X-Gitlab-Token header   string                  true "Gitlab token"
 // @Param       body           body     gitlab.MergeRequestHook true "Gitlab request body"
 // @Success     200            {object} api.Response
 // @Failure     400            {object} api.Response

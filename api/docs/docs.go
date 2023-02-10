@@ -83,6 +83,65 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/gitlab/merge": {
+            "post": {
+                "description": "Update merge request description with the task info",
+                "consumes": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Gitlab event",
+                        "name": "X-Gitlab-Event",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gitlab token",
+                        "name": "X-Gitlab-Token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Gitlab request body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gitlab.MergeRequestHook"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/ping": {
             "get": {
                 "tags": [
@@ -156,6 +215,361 @@ const docTemplate = `{
                 },
                 "url": {
                     "type": "string"
+                }
+            }
+        },
+        "gitlab.MergeRequestHook": {
+            "type": "object",
+            "properties": {
+                "changes": {
+                    "type": "object",
+                    "properties": {
+                        "merge_status": {
+                            "type": "object",
+                            "properties": {
+                                "current": {
+                                    "type": "string"
+                                },
+                                "previous": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "event_type": {
+                    "type": "string"
+                },
+                "labels": {
+                    "type": "array",
+                    "items": {}
+                },
+                "object_attributes": {
+                    "type": "object",
+                    "properties": {
+                        "action": {
+                            "type": "string"
+                        },
+                        "assignee_id": {},
+                        "assignee_ids": {
+                            "type": "array",
+                            "items": {}
+                        },
+                        "author_id": {
+                            "type": "integer"
+                        },
+                        "blocking_discussions_resolved": {
+                            "type": "boolean"
+                        },
+                        "created_at": {
+                            "type": "string"
+                        },
+                        "description": {
+                            "type": "string"
+                        },
+                        "detailed_merge_status": {
+                            "type": "string"
+                        },
+                        "first_contribution": {
+                            "type": "boolean"
+                        },
+                        "head_pipeline_id": {},
+                        "human_time_change": {},
+                        "human_time_estimate": {},
+                        "human_total_time_spent": {},
+                        "id": {
+                            "type": "integer"
+                        },
+                        "iid": {
+                            "type": "integer"
+                        },
+                        "labels": {
+                            "type": "array",
+                            "items": {}
+                        },
+                        "last_commit": {
+                            "type": "object",
+                            "properties": {
+                                "author": {
+                                    "type": "object",
+                                    "properties": {
+                                        "email": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        }
+                                    }
+                                },
+                                "id": {
+                                    "type": "string"
+                                },
+                                "message": {
+                                    "type": "string"
+                                },
+                                "timestamp": {
+                                    "type": "string"
+                                },
+                                "title": {
+                                    "type": "string"
+                                },
+                                "url": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "last_edited_at": {},
+                        "last_edited_by_id": {},
+                        "merge_commit_sha": {
+                            "type": "string"
+                        },
+                        "merge_error": {},
+                        "merge_params": {
+                            "type": "object",
+                            "properties": {
+                                "force_remove_source_branch": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "merge_status": {
+                            "type": "string"
+                        },
+                        "merge_user_id": {},
+                        "merge_when_pipeline_succeeds": {
+                            "type": "boolean"
+                        },
+                        "milestone_id": {},
+                        "reviewer_ids": {
+                            "type": "array",
+                            "items": {}
+                        },
+                        "source": {
+                            "type": "object",
+                            "properties": {
+                                "avatar_url": {},
+                                "ci_config_path": {
+                                    "type": "string"
+                                },
+                                "default_branch": {
+                                    "type": "string"
+                                },
+                                "description": {},
+                                "git_http_url": {
+                                    "type": "string"
+                                },
+                                "git_ssh_url": {
+                                    "type": "string"
+                                },
+                                "homepage": {
+                                    "type": "string"
+                                },
+                                "http_url": {
+                                    "type": "string"
+                                },
+                                "id": {
+                                    "type": "integer"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "namespace": {
+                                    "type": "string"
+                                },
+                                "path_with_namespace": {
+                                    "type": "string"
+                                },
+                                "ssh_url": {
+                                    "type": "string"
+                                },
+                                "url": {
+                                    "type": "string"
+                                },
+                                "visibility_level": {
+                                    "type": "integer"
+                                },
+                                "web_url": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "source_branch": {
+                            "type": "string"
+                        },
+                        "source_project_id": {
+                            "type": "integer"
+                        },
+                        "state": {
+                            "type": "string"
+                        },
+                        "state_id": {
+                            "type": "integer"
+                        },
+                        "target": {
+                            "type": "object",
+                            "properties": {
+                                "avatar_url": {},
+                                "ci_config_path": {
+                                    "type": "string"
+                                },
+                                "default_branch": {
+                                    "type": "string"
+                                },
+                                "description": {},
+                                "git_http_url": {
+                                    "type": "string"
+                                },
+                                "git_ssh_url": {
+                                    "type": "string"
+                                },
+                                "homepage": {
+                                    "type": "string"
+                                },
+                                "http_url": {
+                                    "type": "string"
+                                },
+                                "id": {
+                                    "type": "integer"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "namespace": {
+                                    "type": "string"
+                                },
+                                "path_with_namespace": {
+                                    "type": "string"
+                                },
+                                "ssh_url": {
+                                    "type": "string"
+                                },
+                                "url": {
+                                    "type": "string"
+                                },
+                                "visibility_level": {
+                                    "type": "integer"
+                                },
+                                "web_url": {
+                                    "type": "string"
+                                }
+                            }
+                        },
+                        "target_branch": {
+                            "type": "string"
+                        },
+                        "target_project_id": {
+                            "type": "integer"
+                        },
+                        "time_change": {
+                            "type": "integer"
+                        },
+                        "time_estimate": {
+                            "type": "integer"
+                        },
+                        "title": {
+                            "type": "string"
+                        },
+                        "total_time_spent": {
+                            "type": "integer"
+                        },
+                        "updated_at": {
+                            "type": "string"
+                        },
+                        "updated_by_id": {},
+                        "url": {
+                            "type": "string"
+                        },
+                        "work_in_progress": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "object_kind": {
+                    "type": "string"
+                },
+                "project": {
+                    "type": "object",
+                    "properties": {
+                        "avatar_url": {},
+                        "ci_config_path": {
+                            "type": "string"
+                        },
+                        "default_branch": {
+                            "type": "string"
+                        },
+                        "description": {},
+                        "git_http_url": {
+                            "type": "string"
+                        },
+                        "git_ssh_url": {
+                            "type": "string"
+                        },
+                        "homepage": {
+                            "type": "string"
+                        },
+                        "http_url": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "integer"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "namespace": {
+                            "type": "string"
+                        },
+                        "path_with_namespace": {
+                            "type": "string"
+                        },
+                        "ssh_url": {
+                            "type": "string"
+                        },
+                        "url": {
+                            "type": "string"
+                        },
+                        "visibility_level": {
+                            "type": "integer"
+                        },
+                        "web_url": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "repository": {
+                    "type": "object",
+                    "properties": {
+                        "description": {},
+                        "homepage": {
+                            "type": "string"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "url": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "user": {
+                    "type": "object",
+                    "properties": {
+                        "avatar_url": {
+                            "type": "string"
+                        },
+                        "email": {
+                            "type": "string"
+                        },
+                        "id": {
+                            "type": "integer"
+                        },
+                        "name": {
+                            "type": "string"
+                        },
+                        "username": {
+                            "type": "string"
+                        }
+                    }
                 }
             }
         },
