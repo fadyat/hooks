@@ -62,3 +62,7 @@ type Commit struct {
 	Modified []string      `json:"modified"`
 	Removed  []interface{} `json:"removed"`
 }
+
+const (
+	PushEvent = "Push Hook"
+)

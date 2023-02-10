@@ -46,3 +46,19 @@ func ParseTaskMentions(txt string) []entities.TaskMention {
 
 	return mentions
 }
+
+// RemoveTaskMentions removes all the task mentions from a text
+//
+// Expected format: <task-manager><separator><task-id>
+func RemoveTaskMentions(txt string) string {
+	pattern := buildAnyOfRegex(
+		getUniqueMark(),
+		getSupportedSeparators(),
+		[]string{`\d+`},
+	)
+
+	replaced := regexp.MustCompile(pattern).ReplaceAllString(txt, "")
+	spaces := regexp.MustCompile(`\s+`).ReplaceAllString(replaced, " ")
+	newlines := regexp.MustCompile(`\n+`).ReplaceAllString(spaces, "\n")
+	return strings.TrimSpace(newlines)
+}

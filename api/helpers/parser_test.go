@@ -6,13 +6,13 @@ import (
 	"testing"
 )
 
-type test struct {
-	name string
-	in   string
-	exp  []entities.TaskMention
-}
-
 func TestParseTaskMention(t *testing.T) {
+	type test struct {
+		name string
+		in   string
+		exp  []entities.TaskMention
+	}
+
 	var tests = []test{
 		{"no mention", "this is a test", []entities.TaskMention{}},
 		{"mention with :", "this is a test asana:123", []entities.TaskMention{{ID: "123"}}},
@@ -30,6 +30,31 @@ func TestParseTaskMention(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			act := ParseTaskMentions(tt.in)
+			if !cmp.Equal(tt.exp, act) {
+				t.Errorf("failed on '%s', expected: %v, actual: %v", tt.name, tt.exp, act)
+			}
+		})
+	}
+}
+
+func TestRemoveTaskMentions(t *testing.T) {
+	type test struct {
+		name string
+		in   string
+		exp  string
+	}
+
+	var tests = []test{
+		{"no mention", "this is a test", "this is a test"},
+		{"mention with :", "this is a test asana:123", "this is a test"},
+		{"mention with _", "this is a test asana_123", "this is a test"},
+		{"mention with ref", "this is a test ref:123", "this is a test"},
+		{"multiple mentions", "this is a test asana:123 asana:456", "this is a test"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			act := RemoveTaskMentions(tt.in)
 			if !cmp.Equal(tt.exp, act) {
 				t.Errorf("failed on '%s', expected: %v, actual: %v", tt.name, tt.exp, act)
 			}

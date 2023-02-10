@@ -61,6 +61,7 @@ func setupApiV1(r *gin.Engine, cfg *config.HTTPAPI) {
 	v1 := r.Group("/api/v1")
 	v1.GET("/ping", ping)
 
-	gh := handlers.NewGitlabHandler(cfg, tm.NewAsanaService(cfg.AsanaAPIKey))
+	asana := tm.NewAsanaService(cfg.AsanaAPIKey, &log.Logger, cfg)
+	gh := handlers.NewGitlabHandler(cfg, asana)
 	v1.POST("/asana/push", gh.UpdateLastCommitInfo)
 }
