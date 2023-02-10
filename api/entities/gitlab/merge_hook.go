@@ -138,3 +138,7 @@ type MergeRequestHook struct {
 		Homepage    string      `json:"homepage"`
 	} `json:"repository"`
 }
+
+const (
+	MergeRequestActionOpen = "open"
+)

@@ -64,5 +64,6 @@ type Commit struct {
 }
 
 const (
-	PushEvent = "Push Hook"
+	PushEvent  = "Push Hook"
+	MergeEvent = "Merge Request Hook"
 )

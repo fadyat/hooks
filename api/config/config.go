@@ -15,6 +15,9 @@ type HTTPAPI struct {
 
 	// Asana last commit field name in task
 	LastCommitFieldName string `envconfig:"LAST_COMMIT_FIELD_NAME" required:"true" default:"Last Commit"`
+
+	// Gitlab API Access Token
+	GitlabAPIKey string `envconfig:"GITLAB_API_KEY" required:"true"`
 }
 
 // Load loads the configuration from the environment

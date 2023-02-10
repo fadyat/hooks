@@ -4,5 +4,7 @@ package vcs
 //
 // Implementations: GitlabService
 type IVCS interface {
-	UpdatePRDescription(prID string, description string) error
+
+	// UpdatePRDescription updates the description of a PR
+	UpdatePRDescription(pid, prID int, branch, desc string) error
 }

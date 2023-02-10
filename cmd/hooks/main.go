@@ -6,6 +6,7 @@ import (
 	_ "github.com/fadyat/hooks/api/docs"
 	"github.com/fadyat/hooks/api/handlers"
 	"github.com/fadyat/hooks/api/services/tm"
+	"github.com/fadyat/hooks/api/services/vcs"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -62,6 +63,8 @@ func setupApiV1(r *gin.Engine, cfg *config.HTTPAPI) {
 	v1.GET("/ping", ping)
 
 	asana := tm.NewAsanaService(cfg.AsanaAPIKey, &log.Logger, cfg)
-	gh := handlers.NewGitlabHandler(cfg, asana)
+	gitlab := vcs.NewGitlabService(cfg.GitlabAPIKey, &log.Logger, asana)
+	gh := handlers.NewGitlabHandler(cfg, &log.Logger, asana, gitlab)
 	v1.POST("/asana/push", gh.UpdateLastCommitInfo)
+	v1.POST("/gitlab/merge", gh.UpdateMergeRequestDescription)
 }

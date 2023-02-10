@@ -3,6 +3,7 @@ package helpers
 import (
 	"bitbucket.org/mikehouston/asana-go"
 	"fmt"
+	"github.com/fadyat/hooks/api/entities"
 	"strings"
 )
 
@@ -15,11 +16,12 @@ func isMergeCommit(message string) bool {
 }
 
 func ConfigureMessageForTaskManager(message string, vcsLink string) string {
-	if isMergeCommit(message) {
-		message = strings.Split(message, "\n")[0]
+	clearMessage := strings.Split(message, "\n")[0]
+	if !isMergeCommit(message) {
+		clearMessage = RemoveTaskMentions(message)
 	}
 
-	return fmt.Sprintf("%s\n\n%s", vcsLink, message)
+	return fmt.Sprintf("%s\n\n%s", vcsLink, clearMessage)
 }
 
 func WrapError(err1 error, err2 error) error {
@@ -43,4 +45,18 @@ func FindCustomFieldByName(fields []*asana.CustomFieldValue, name string) *asana
 	}
 
 	return nil
+}
+
+func RemoveDuplicatesTaskMentions(mentions []entities.TaskMention) []entities.TaskMention {
+	keys := make(map[entities.TaskMention]bool)
+	list := make([]entities.TaskMention, 0, len(mentions))
+
+	for _, entry := range mentions {
+		if _, value := keys[entry]; !value {
+			keys[entry] = true
+			list = append(list, entry)
+		}
+	}
+
+	return list
 }

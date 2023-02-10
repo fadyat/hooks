@@ -3,6 +3,7 @@ package tm
 import (
 	"bitbucket.org/mikehouston/asana-go"
 	"errors"
+	"fmt"
 	"github.com/fadyat/hooks/api"
 	"github.com/fadyat/hooks/api/config"
 	"github.com/fadyat/hooks/api/entities"
@@ -67,9 +68,11 @@ func (a *AsanaService) UpdateLastCommitInfo(branchName string, lastCommit gitlab
 		lastCommit.URL,
 	)
 
-	mentions := append(
-		helpers.ParseTaskMentions(branchName),
-		helpers.ParseTaskMentions(lastCommit.Message)...,
+	mentions := helpers.RemoveDuplicatesTaskMentions(
+		append(
+			helpers.ParseTaskMentions(branchName),
+			helpers.ParseTaskMentions(lastCommit.Message)...,
+		),
 	)
 
 	if len(mentions) == 0 {
@@ -92,4 +95,17 @@ func (a *AsanaService) UpdateLastCommitInfo(branchName string, lastCommit gitlab
 	}
 
 	return wrappedError
+}
+
+func (a *AsanaService) GetTaskShortLink(mention entities.TaskMention) (string, error) {
+	return fmt.Sprintf("https://app.asana.com/0/0/%s", mention.ID), nil
+}
+
+func (a *AsanaService) GetTaskName(mention entities.TaskMention) (string, error) {
+	t := asana.Task{ID: mention.ID}
+	if err := t.Fetch(a.c); err != nil {
+		return "", err
+	}
+
+	return t.Name, nil
 }
