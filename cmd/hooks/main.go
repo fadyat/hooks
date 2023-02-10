@@ -2,8 +2,11 @@ package main
 
 import (
 	"github.com/fadyat/hooks/api"
+	"github.com/fadyat/hooks/api/config"
 	_ "github.com/fadyat/hooks/api/docs"
-	"github.com/fadyat/hooks/api/hooks/gitlab"
+	"github.com/fadyat/hooks/api/handlers"
+	"github.com/fadyat/hooks/api/services/tm"
+	"github.com/fadyat/hooks/api/services/vcs"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
@@ -15,8 +18,6 @@ import (
 
 // PingExample godoc
 // @Tags    example
-// @Accept  json
-// @Produce json
 // @Success 200 {string} string "pong"
 // @Router  /api/v1/ping [get]
 func ping(g *gin.Context) {
@@ -39,27 +40,31 @@ func main() {
 	r.Use(gin.Recovery())
 	r.Use(api.LoggerMiddleware(&log.Logger))
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
-	zerolog.TimeFieldFormat = time.RFC822
 
-	cfg, err := api.LoadConfig()
+	cfg, err := config.Load()
 	if err != nil {
 		log.Info().Err(err).Msg("Failed to load config")
 	}
 
-	v1 := r.Group("/api/v1")
-	v1.Use(api.ConfigMiddleware(cfg))
-	v1.GET("/ping", ping)
-	v1Asana := v1.Group("/asana")
-	v1Asana.POST("/merge", gitlab.MergeRequestAsana)
-	v1Asana.POST("/push", gitlab.PushRequestAsana)
-
-	v2 := r.Group("/api/v2")
-	v2.Use(api.ConfigMiddleware(cfg))
-	v2.GET("/ping", ping)
-	v2Asana := v2.Group("/asana")
-	v2Asana.POST("/push", gitlab.PushRequestAsanaV2)
+	setupLogger()
+	setupApiV1(r, cfg)
 
 	if err = r.Run(":80"); err != nil {
 		log.Fatal().Err(err).Msg("Failed to start server")
 	}
+}
+
+func setupLogger() {
+	zerolog.TimeFieldFormat = time.RFC822
+}
+
+func setupApiV1(r *gin.Engine, cfg *config.HTTPAPI) {
+	v1 := r.Group("/api/v1")
+	v1.GET("/ping", ping)
+
+	asana := tm.NewAsanaService(cfg.AsanaAPIKey, &log.Logger, cfg)
+	gitlab := vcs.NewGitlabService(cfg.GitlabAPIKey, &log.Logger, asana)
+	gh := handlers.NewGitlabHandler(cfg, &log.Logger, asana, gitlab)
+	v1.POST("/asana/push", gh.UpdateLastCommitInfo)
+	v1.POST("/gitlab/merge", gh.UpdateMergeRequestDescription)
 }

@@ -1,6 +1,14 @@
 basePath: /api/v1
 definitions:
-  entities.Commit:
+  api.Response:
+    properties:
+      error:
+        type: string
+      ok:
+        type: boolean
+      result: {}
+    type: object
+  gitlab.Commit:
     properties:
       added:
         items:
@@ -31,7 +39,7 @@ definitions:
       url:
         type: string
     type: object
-  entities.GitlabMergeRequestHook:
+  gitlab.MergeRequestHook:
     properties:
       changes:
         properties:
@@ -92,10 +100,11 @@ definitions:
                 type: string
               message:
                 type: string
+              timestamp:
+                type: string
               title:
                 type: string
               url:
-                description: Timestamp time.Time `json:"timestamp"`
                 type: string
             type: object
           last_edited_at: {}
@@ -270,7 +279,7 @@ definitions:
             type: string
         type: object
     type: object
-  entities.GitlabPushRequestHook:
+  gitlab.PushRequestHook:
     properties:
       after:
         type: string
@@ -280,7 +289,7 @@ definitions:
         type: string
       commits:
         items:
-          $ref: '#/definitions/entities.Commit'
+          $ref: '#/definitions/gitlab.Commit'
         type: array
       event_name:
         type: string
@@ -352,16 +361,6 @@ definitions:
       user_username:
         type: string
     type: object
-  gitlab.ErrorResponse:
-    properties:
-      error:
-        type: string
-    type: object
-  gitlab.SuccessResponse:
-    properties:
-      result:
-        type: string
-    type: object
 host: localhost:80
 info:
   contact:
@@ -375,92 +374,86 @@ info:
   title: Hooks API
   version: 1.0.0
 paths:
-  /api/v1/asana/merge:
-    post:
-      consumes:
-      - application/json
-      description: Endpoint to set last commit url to custom field in asana task,
-        passed via commit message
-      parameters:
-      - description: Gitlab token
-        in: header
-        name: X-Gitlab-Token
-        required: true
-        type: string
-      - description: Gitlab merge request
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/entities.GitlabMergeRequestHook'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/gitlab.SuccessResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/gitlab.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/gitlab.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/gitlab.ErrorResponse'
-      summary: Gitlab merge request hook
-      tags:
-      - gitlab
   /api/v1/asana/push:
     post:
       consumes:
       - application/json
-      description: Endpoint to set last commit url to custom field in asana task,
-        passed via commit message
+      description: Update last commit info, in custom field or creating a comment
       parameters:
+      - description: Gitlab event
+        in: header
+        name: X-Gitlab-Event
+        required: true
+        type: string
       - description: Gitlab token
         in: header
         name: X-Gitlab-Token
         required: true
         type: string
-      - description: Gitlab push request
+      - description: Gitlab request body
         in: body
         name: body
         required: true
         schema:
-          $ref: '#/definitions/entities.GitlabPushRequestHook'
-      produces:
-      - application/json
+          $ref: '#/definitions/gitlab.PushRequestHook'
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/gitlab.SuccessResponse'
+            $ref: '#/definitions/api.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/gitlab.ErrorResponse'
+            $ref: '#/definitions/api.Response'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/gitlab.ErrorResponse'
+            $ref: '#/definitions/api.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/gitlab.ErrorResponse'
-      summary: Gitlab push request hook
-      tags:
-      - gitlab
-  /api/v1/ping:
-    get:
+            $ref: '#/definitions/api.Response'
+  /api/v1/gitlab/merge:
+    post:
       consumes:
       - application/json
-      produces:
-      - application/json
+      description: Update merge request description with the task info
+      parameters:
+      - description: Gitlab event
+        in: header
+        name: X-Gitlab-Event
+        required: true
+        type: string
+      - description: Gitlab token
+        in: header
+        name: X-Gitlab-Token
+        required: true
+        type: string
+      - description: Gitlab request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/gitlab.MergeRequestHook'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Response'
+  /api/v1/ping:
+    get:
       responses:
         "200":
           description: pong
@@ -468,46 +461,6 @@ paths:
             type: string
       tags:
       - example
-  /api/v2/asana/push:
-    post:
-      consumes:
-      - application/json
-      description: Endpoint to set last commit url to custom field in asana task,
-        passed via branch name
-      parameters:
-      - description: Gitlab token
-        in: header
-        name: X-Gitlab-Token
-        required: true
-        type: string
-      - description: Gitlab push request
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/entities.GitlabPushRequestHook'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/gitlab.SuccessResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/gitlab.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/gitlab.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/gitlab.ErrorResponse'
-      summary: Gitlab push request hook
-      tags:
-      - gitlab
 schemes:
 - http
 - https

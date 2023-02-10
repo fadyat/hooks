@@ -7,14 +7,6 @@ import (
 	"time"
 )
 
-// ConfigMiddleware is a middleware that injects the config into the context
-func ConfigMiddleware(config *HTTPAPI) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Set("HTTPAPI", config)
-		c.Next()
-	}
-}
-
 // LoggerMiddleware is a middleware that injects the logger into the context
 func LoggerMiddleware(logger *zerolog.Logger) gin.HandlerFunc {
 	return func(c *gin.Context) {

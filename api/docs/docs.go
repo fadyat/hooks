@@ -24,20 +24,20 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/asana/merge": {
+        "/api/v1/asana/push": {
             "post": {
-                "description": "Endpoint to set last commit url to custom field in asana task, passed via commit message",
+                "description": "Update last commit info, in custom field or creating a comment",
                 "consumes": [
                     "application/json"
                 ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "gitlab"
-                ],
-                "summary": "Gitlab merge request hook",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Gitlab event",
+                        "name": "X-Gitlab-Event",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Gitlab token",
@@ -46,12 +46,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Gitlab merge request",
+                        "description": "Gitlab request body",
                         "name": "body",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entities.GitlabMergeRequestHook"
+                            "$ref": "#/definitions/gitlab.PushRequestHook"
                         }
                     }
                 ],
@@ -59,44 +59,44 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/gitlab.SuccessResponse"
+                            "$ref": "#/definitions/api.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/gitlab.ErrorResponse"
+                            "$ref": "#/definitions/api.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/gitlab.ErrorResponse"
+                            "$ref": "#/definitions/api.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/gitlab.ErrorResponse"
+                            "$ref": "#/definitions/api.Response"
                         }
                     }
                 }
             }
         },
-        "/api/v1/asana/push": {
+        "/api/v1/gitlab/merge": {
             "post": {
-                "description": "Endpoint to set last commit url to custom field in asana task, passed via commit message",
+                "description": "Update merge request description with the task info",
                 "consumes": [
                     "application/json"
                 ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "gitlab"
-                ],
-                "summary": "Gitlab push request hook",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Gitlab event",
+                        "name": "X-Gitlab-Event",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Gitlab token",
@@ -105,12 +105,12 @@ const docTemplate = `{
                         "required": true
                     },
                     {
-                        "description": "Gitlab push request",
+                        "description": "Gitlab request body",
                         "name": "body",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/entities.GitlabPushRequestHook"
+                            "$ref": "#/definitions/gitlab.MergeRequestHook"
                         }
                     }
                 ],
@@ -118,25 +118,25 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/gitlab.SuccessResponse"
+                            "$ref": "#/definitions/api.Response"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/gitlab.ErrorResponse"
+                            "$ref": "#/definitions/api.Response"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/gitlab.ErrorResponse"
+                            "$ref": "#/definitions/api.Response"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/gitlab.ErrorResponse"
+                            "$ref": "#/definitions/api.Response"
                         }
                     }
                 }
@@ -144,12 +144,6 @@ const docTemplate = `{
         },
         "/api/v1/ping": {
             "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "example"
                 ],
@@ -162,69 +156,22 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/api/v2/asana/push": {
-            "post": {
-                "description": "Endpoint to set last commit url to custom field in asana task, passed via branch name",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "gitlab"
-                ],
-                "summary": "Gitlab push request hook",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "Gitlab token",
-                        "name": "X-Gitlab-Token",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "Gitlab push request",
-                        "name": "body",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/entities.GitlabPushRequestHook"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/gitlab.SuccessResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/gitlab.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/gitlab.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/gitlab.ErrorResponse"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
-        "entities.Commit": {
+        "api.Response": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                },
+                "ok": {
+                    "type": "boolean"
+                },
+                "result": {}
+            }
+        },
+        "gitlab.Commit": {
             "type": "object",
             "properties": {
                 "added": {
@@ -271,7 +218,7 @@ const docTemplate = `{
                 }
             }
         },
-        "entities.GitlabMergeRequestHook": {
+        "gitlab.MergeRequestHook": {
             "type": "object",
             "properties": {
                 "changes": {
@@ -360,11 +307,13 @@ const docTemplate = `{
                                 "message": {
                                     "type": "string"
                                 },
+                                "timestamp": {
+                                    "type": "string"
+                                },
                                 "title": {
                                     "type": "string"
                                 },
                                 "url": {
-                                    "description": "Timestamp time.Time ` + "`" + `json:\"timestamp\"` + "`" + `",
                                     "type": "string"
                                 }
                             }
@@ -624,7 +573,7 @@ const docTemplate = `{
                 }
             }
         },
-        "entities.GitlabPushRequestHook": {
+        "gitlab.PushRequestHook": {
             "type": "object",
             "properties": {
                 "after": {
@@ -639,7 +588,7 @@ const docTemplate = `{
                 "commits": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/entities.Commit"
+                        "$ref": "#/definitions/gitlab.Commit"
                     }
                 },
                 "event_name": {
@@ -744,22 +693,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "user_username": {
-                    "type": "string"
-                }
-            }
-        },
-        "gitlab.ErrorResponse": {
-            "type": "object",
-            "properties": {
-                "error": {
-                    "type": "string"
-                }
-            }
-        },
-        "gitlab.SuccessResponse": {
-            "type": "object",
-            "properties": {
-                "result": {
                     "type": "string"
                 }
             }
