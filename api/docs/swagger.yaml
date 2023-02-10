@@ -1,6 +1,14 @@
 basePath: /api/v1
 definitions:
-  entities.Commit:
+  api.Response:
+    properties:
+      error:
+        type: string
+      ok:
+        type: boolean
+      result: {}
+    type: object
+  gitlab.Commit:
     properties:
       added:
         items:
@@ -31,246 +39,7 @@ definitions:
       url:
         type: string
     type: object
-  entities.GitlabMergeRequestHook:
-    properties:
-      changes:
-        properties:
-          merge_status:
-            properties:
-              current:
-                type: string
-              previous:
-                type: string
-            type: object
-        type: object
-      event_type:
-        type: string
-      labels:
-        items: {}
-        type: array
-      object_attributes:
-        properties:
-          action:
-            type: string
-          assignee_id: {}
-          assignee_ids:
-            items: {}
-            type: array
-          author_id:
-            type: integer
-          blocking_discussions_resolved:
-            type: boolean
-          created_at:
-            type: string
-          description:
-            type: string
-          detailed_merge_status:
-            type: string
-          first_contribution:
-            type: boolean
-          head_pipeline_id: {}
-          human_time_change: {}
-          human_time_estimate: {}
-          human_total_time_spent: {}
-          id:
-            type: integer
-          iid:
-            type: integer
-          labels:
-            items: {}
-            type: array
-          last_commit:
-            properties:
-              author:
-                properties:
-                  email:
-                    type: string
-                  name:
-                    type: string
-                type: object
-              id:
-                type: string
-              message:
-                type: string
-              title:
-                type: string
-              url:
-                description: Timestamp time.Time `json:"timestamp"`
-                type: string
-            type: object
-          last_edited_at: {}
-          last_edited_by_id: {}
-          merge_commit_sha:
-            type: string
-          merge_error: {}
-          merge_params:
-            properties:
-              force_remove_source_branch:
-                type: string
-            type: object
-          merge_status:
-            type: string
-          merge_user_id: {}
-          merge_when_pipeline_succeeds:
-            type: boolean
-          milestone_id: {}
-          reviewer_ids:
-            items: {}
-            type: array
-          source:
-            properties:
-              avatar_url: {}
-              ci_config_path:
-                type: string
-              default_branch:
-                type: string
-              description: {}
-              git_http_url:
-                type: string
-              git_ssh_url:
-                type: string
-              homepage:
-                type: string
-              http_url:
-                type: string
-              id:
-                type: integer
-              name:
-                type: string
-              namespace:
-                type: string
-              path_with_namespace:
-                type: string
-              ssh_url:
-                type: string
-              url:
-                type: string
-              visibility_level:
-                type: integer
-              web_url:
-                type: string
-            type: object
-          source_branch:
-            type: string
-          source_project_id:
-            type: integer
-          state:
-            type: string
-          state_id:
-            type: integer
-          target:
-            properties:
-              avatar_url: {}
-              ci_config_path:
-                type: string
-              default_branch:
-                type: string
-              description: {}
-              git_http_url:
-                type: string
-              git_ssh_url:
-                type: string
-              homepage:
-                type: string
-              http_url:
-                type: string
-              id:
-                type: integer
-              name:
-                type: string
-              namespace:
-                type: string
-              path_with_namespace:
-                type: string
-              ssh_url:
-                type: string
-              url:
-                type: string
-              visibility_level:
-                type: integer
-              web_url:
-                type: string
-            type: object
-          target_branch:
-            type: string
-          target_project_id:
-            type: integer
-          time_change:
-            type: integer
-          time_estimate:
-            type: integer
-          title:
-            type: string
-          total_time_spent:
-            type: integer
-          updated_at:
-            type: string
-          updated_by_id: {}
-          url:
-            type: string
-          work_in_progress:
-            type: boolean
-        type: object
-      object_kind:
-        type: string
-      project:
-        properties:
-          avatar_url: {}
-          ci_config_path:
-            type: string
-          default_branch:
-            type: string
-          description: {}
-          git_http_url:
-            type: string
-          git_ssh_url:
-            type: string
-          homepage:
-            type: string
-          http_url:
-            type: string
-          id:
-            type: integer
-          name:
-            type: string
-          namespace:
-            type: string
-          path_with_namespace:
-            type: string
-          ssh_url:
-            type: string
-          url:
-            type: string
-          visibility_level:
-            type: integer
-          web_url:
-            type: string
-        type: object
-      repository:
-        properties:
-          description: {}
-          homepage:
-            type: string
-          name:
-            type: string
-          url:
-            type: string
-        type: object
-      user:
-        properties:
-          avatar_url:
-            type: string
-          email:
-            type: string
-          id:
-            type: integer
-          name:
-            type: string
-          username:
-            type: string
-        type: object
-    type: object
-  entities.GitlabPushRequestHook:
+  gitlab.PushRequestHook:
     properties:
       after:
         type: string
@@ -280,7 +49,7 @@ definitions:
         type: string
       commits:
         items:
-          $ref: '#/definitions/entities.Commit'
+          $ref: '#/definitions/gitlab.Commit'
         type: array
       event_name:
         type: string
@@ -352,16 +121,6 @@ definitions:
       user_username:
         type: string
     type: object
-  gitlab.ErrorResponse:
-    properties:
-      error:
-        type: string
-    type: object
-  gitlab.SuccessResponse:
-    properties:
-      result:
-        type: string
-    type: object
 host: localhost:80
 info:
   contact:
@@ -375,92 +134,47 @@ info:
   title: Hooks API
   version: 1.0.0
 paths:
-  /api/v1/asana/merge:
-    post:
-      consumes:
-      - application/json
-      description: Endpoint to set last commit url to custom field in asana task,
-        passed via commit message
-      parameters:
-      - description: Gitlab token
-        in: header
-        name: X-Gitlab-Token
-        required: true
-        type: string
-      - description: Gitlab merge request
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/entities.GitlabMergeRequestHook'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/gitlab.SuccessResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/gitlab.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/gitlab.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/gitlab.ErrorResponse'
-      summary: Gitlab merge request hook
-      tags:
-      - gitlab
   /api/v1/asana/push:
     post:
       consumes:
       - application/json
-      description: Endpoint to set last commit url to custom field in asana task,
-        passed via commit message
+      description: Update last commit info, in custom field or creating a comment
       parameters:
+      - description: Gitlab event
+        in: header
+        name: X-Gitlab-Event
+        required: true
+        type: string
       - description: Gitlab token
         in: header
         name: X-Gitlab-Token
         required: true
         type: string
-      - description: Gitlab push request
+      - description: Gitlab request body
         in: body
         name: body
         required: true
         schema:
-          $ref: '#/definitions/entities.GitlabPushRequestHook'
-      produces:
-      - application/json
+          $ref: '#/definitions/gitlab.PushRequestHook'
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/gitlab.SuccessResponse'
+            $ref: '#/definitions/api.Response'
         "400":
           description: Bad Request
           schema:
-            $ref: '#/definitions/gitlab.ErrorResponse'
+            $ref: '#/definitions/api.Response'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/gitlab.ErrorResponse'
+            $ref: '#/definitions/api.Response'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/gitlab.ErrorResponse'
-      summary: Gitlab push request hook
-      tags:
-      - gitlab
+            $ref: '#/definitions/api.Response'
   /api/v1/ping:
     get:
-      consumes:
-      - application/json
-      produces:
-      - application/json
       responses:
         "200":
           description: pong
@@ -468,46 +182,6 @@ paths:
             type: string
       tags:
       - example
-  /api/v2/asana/push:
-    post:
-      consumes:
-      - application/json
-      description: Endpoint to set last commit url to custom field in asana task,
-        passed via branch name
-      parameters:
-      - description: Gitlab token
-        in: header
-        name: X-Gitlab-Token
-        required: true
-        type: string
-      - description: Gitlab push request
-        in: body
-        name: body
-        required: true
-        schema:
-          $ref: '#/definitions/entities.GitlabPushRequestHook'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/gitlab.SuccessResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/gitlab.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/gitlab.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/gitlab.ErrorResponse'
-      summary: Gitlab push request hook
-      tags:
-      - gitlab
 schemes:
 - http
 - https
