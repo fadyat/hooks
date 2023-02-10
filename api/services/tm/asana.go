@@ -62,27 +62,32 @@ func (a *AsanaService) CreateComment(mention entities.TaskMention, value string)
 }
 
 func (a *AsanaService) UpdateLastCommitInfo(branchName string, lastCommit gitlab.Commit) error {
-	message := helpers.ConfigureMessageForTaskManager(lastCommit.Message, lastCommit.URL)
+	message := helpers.ConfigureMessageForTaskManager(
+		lastCommit.Message,
+		lastCommit.URL,
+	)
+
 	mentions := append(
 		helpers.ParseTaskMentions(branchName),
 		helpers.ParseTaskMentions(lastCommit.Message)...,
 	)
 
 	if len(mentions) == 0 {
+		a.l.Debug().Msgf("no task mentions found in branch name %s or commit message %s", branchName, lastCommit.Message)
 		return errors.New(api.NoTaskMentionsFound)
 	}
 
 	var wrappedError error = nil
 	for _, m := range mentions {
-		err := a.UpdateCustomField(m, a.cfg.LastCommitFieldName, message)
+		err := a.UpdateCustomField(m, a.cfg.LastCommitFieldName, lastCommit.URL)
 		if err == nil {
 			continue
 		}
 
-		wrappedError = helpers.WrapError(wrappedError, err)
 		a.l.Debug().Err(err).Msgf("failed to update custom field %s for task %s", a.cfg.LastCommitFieldName, m)
 		if err = a.CreateComment(m, message); err != nil {
 			a.l.Debug().Err(err).Msgf("failed to create comment for task %s", m)
+			wrappedError = helpers.WrapError(wrappedError, err)
 		}
 	}
 

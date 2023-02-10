@@ -10,9 +10,16 @@ func GetBranchNameFromRef(ref string) string {
 	return strings.TrimPrefix(ref, "refs/heads/")
 }
 
+func isMergeCommit(message string) bool {
+	return strings.HasPrefix(message, "Merge branch")
+}
+
 func ConfigureMessageForTaskManager(message string, vcsLink string) string {
-	clearMessage := RemoveTaskMentions(message)
-	return fmt.Sprintf("%s\n\n%s", clearMessage, vcsLink)
+	if isMergeCommit(message) {
+		message = strings.Split(message, "\n")[0]
+	}
+
+	return fmt.Sprintf("%s\n\n%s", vcsLink, message)
 }
 
 func WrapError(err1 error, err2 error) error {
