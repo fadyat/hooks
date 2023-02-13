@@ -64,12 +64,5 @@ GITLAB_API_KEY=<your api key>
 
 ## Documentation
 
-```text
-When service is running: https://<service>:80/swagger/index.html
-```
-
-Recreate:
-
-```bash
-make swag
-```
+- `/swagger/index.html` for swagger docs
+- `/ping` for health check

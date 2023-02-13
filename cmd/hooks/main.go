@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/fadyat/hooks/api"
 	"github.com/fadyat/hooks/api/config"
 	_ "github.com/fadyat/hooks/api/docs"
@@ -33,7 +34,6 @@ func ping(g *gin.Context) {
 // @license.name   MIT
 // @license.url    https://github.com/MartinHeinz/go-project-blueprint/blob/master/LICENSE
 // @schemes        http https
-// @host           localhost:80
 // @BasePath       /api/v1
 func main() {
 	r := gin.New()
@@ -49,7 +49,8 @@ func main() {
 	setupLogger()
 	setupApiV1(r, cfg)
 
-	if err = r.Run(":80"); err != nil {
+	addr := fmt.Sprintf(":%s", cfg.Port)
+	if err = r.Run(addr); err != nil {
 		log.Fatal().Err(err).Msg("Failed to start server")
 	}
 }

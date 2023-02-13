@@ -361,7 +361,6 @@ definitions:
       user_username:
         type: string
     type: object
-host: localhost:80
 info:
   contact:
     name: Fadeyev Artyom

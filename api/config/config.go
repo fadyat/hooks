@@ -18,6 +18,9 @@ type HTTPAPI struct {
 
 	// Gitlab API Access Token
 	GitlabAPIKey string `envconfig:"GITLAB_API_KEY" required:"true"`
+
+	// Port to listen on
+	Port string `envconfig:"PORT" required:"true" default:"80"`
 }
 
 // Load loads the configuration from the environment
