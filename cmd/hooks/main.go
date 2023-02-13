@@ -21,8 +21,10 @@ import (
 // @Tags    example
 // @Success 200 {string} string "pong"
 // @Router  /api/v1/ping [get]
-func ping(g *gin.Context) {
-	g.JSON(http.StatusOK, "pong")
+func ping(c *gin.Context) {
+	c.JSON(http.StatusOK, gin.H{
+		"message": "pong",
+	})
 }
 
 // @title          Hooks API
