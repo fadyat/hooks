@@ -43,12 +43,18 @@ func NewGitlabHandler(cfg *config.HTTPAPI, l *zerolog.Logger, tm tm.ITaskManager
 // @Router      /api/v1/asana/push [post]
 func (h *GitlabHandler) UpdateLastCommitInfo(c *gin.Context) {
 	if c.Request.Header.Get("X-Gitlab-Event") != gitlab.PushEvent {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, api.Response{
+			Ok:    false,
+			Error: "invalid event",
+		})
 		return
 	}
 
 	if !slices.Contains(h.cfg.GitlabSecretTokens, c.Request.Header.Get("X-Gitlab-Token")) {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		c.JSON(http.StatusUnauthorized, api.Response{
+			Ok:    false,
+			Error: "invalid token",
+		})
 		return
 	}
 
@@ -102,12 +108,18 @@ func (h *GitlabHandler) UpdateLastCommitInfo(c *gin.Context) {
 // @Router      /api/v1/gitlab/merge [post]
 func (h *GitlabHandler) UpdateMergeRequestDescription(c *gin.Context) {
 	if c.Request.Header.Get("X-Gitlab-Event") != gitlab.MergeEvent {
-		c.AbortWithStatus(http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, api.Response{
+			Ok:    false,
+			Error: "invalid event",
+		})
 		return
 	}
 
 	if !slices.Contains(h.cfg.GitlabSecretTokens, c.Request.Header.Get("X-Gitlab-Token")) {
-		c.AbortWithStatus(http.StatusUnauthorized)
+		c.JSON(http.StatusUnauthorized, api.Response{
+			Ok:    false,
+			Error: "invalid token",
+		})
 		return
 	}
 
