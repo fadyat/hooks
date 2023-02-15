@@ -27,7 +27,7 @@ func NewAsanaService(apiKey string, l *zerolog.Logger, cfg *config.HTTPAPI) *Asa
 	}
 }
 
-func (a *AsanaService) UpdateCustomField(mention entities.TaskMention, customFieldName string, value string) error {
+func (a *AsanaService) UpdateCustomField(mention entities.TaskMention, customFieldName, value string) error {
 	t := asana.Task{ID: mention.ID}
 	if err := t.Fetch(a.c); err != nil {
 		return err
@@ -80,7 +80,7 @@ func (a *AsanaService) UpdateLastCommitInfo(branchName string, lastCommit gitlab
 		return errors.New(api.NoTaskMentionsFound)
 	}
 
-	var wrappedError error = nil
+	var wrappedError error
 	for _, m := range mentions {
 		err := a.UpdateCustomField(m, a.cfg.LastCommitFieldName, lastCommit.URL)
 		if err == nil {

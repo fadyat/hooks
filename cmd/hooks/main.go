@@ -49,7 +49,7 @@ func main() {
 	}
 
 	setupLogger()
-	setupApiV1(r, cfg)
+	setupAPIV1(r, cfg)
 
 	addr := fmt.Sprintf(":%s", cfg.Port)
 	if err = r.Run(addr); err != nil {
@@ -61,7 +61,7 @@ func setupLogger() {
 	zerolog.TimeFieldFormat = time.RFC822
 }
 
-func setupApiV1(r *gin.Engine, cfg *config.HTTPAPI) {
+func setupAPIV1(r *gin.Engine, cfg *config.HTTPAPI) {
 	v1 := r.Group("/api/v1")
 	v1.GET("/ping", ping)
 

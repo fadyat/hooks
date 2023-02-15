@@ -31,7 +31,6 @@ linters:
   enable:
     - bodyclose
     - megacheck
-    - revive
     - govet
     - unconvert
     - gas

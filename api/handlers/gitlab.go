@@ -21,12 +21,12 @@ type GitlabHandler struct {
 	vcs vcs.IVCS
 }
 
-func NewGitlabHandler(cfg *config.HTTPAPI, l *zerolog.Logger, tm tm.ITaskManager, vcs vcs.IVCS) *GitlabHandler {
+func NewGitlabHandler(cfg *config.HTTPAPI, l *zerolog.Logger, m tm.ITaskManager, v vcs.IVCS) *GitlabHandler {
 	return &GitlabHandler{
 		cfg: cfg,
 		l:   l,
-		tm:  tm,
-		vcs: vcs,
+		tm:  m,
+		vcs: v,
 	}
 }
 

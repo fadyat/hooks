@@ -15,7 +15,7 @@ func isMergeCommit(message string) bool {
 	return strings.HasPrefix(message, "Merge branch")
 }
 
-func ConfigureMessageForTaskManager(message string, vcsLink string) string {
+func ConfigureMessageForTaskManager(message, vcsLink string) string {
 	clearMessage := strings.Split(message, "\n")[0]
 	if !isMergeCommit(message) {
 		clearMessage = RemoveTaskMentions(message)
@@ -24,7 +24,7 @@ func ConfigureMessageForTaskManager(message string, vcsLink string) string {
 	return fmt.Sprintf("%s\n\n%s", vcsLink, clearMessage)
 }
 
-func WrapError(err1 error, err2 error) error {
+func WrapError(err1, err2 error) error {
 	// todo: update golang to 1.20 and use errors.Join
 	if err1 == nil {
 		return err2
