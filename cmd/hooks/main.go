@@ -14,6 +14,8 @@ import (
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"net/http"
+	"os"
+	"strings"
 	"time"
 )
 
@@ -50,6 +52,7 @@ func main() {
 
 	setupLogger()
 	setupAPIV1(r, cfg)
+	blurSecrets(&log.Logger)
 
 	addr := fmt.Sprintf(":%s", cfg.Port)
 	if err = r.Run(addr); err != nil {
@@ -70,4 +73,23 @@ func setupAPIV1(r *gin.Engine, cfg *config.HTTPAPI) {
 	gh := handlers.NewGitlabHandler(cfg, &log.Logger, asana, gitlab)
 	v1.POST("/asana/push", gh.UpdateLastCommitInfo)
 	v1.POST("/gitlab/merge", gh.UpdateMergeRequestDescription)
+}
+
+func min(a, b int) int {
+	if a > b {
+		return b
+	}
+
+	return a
+}
+
+func blurSecrets(log *zerolog.Logger) {
+	blur := "***************"
+
+	for _, env := range os.Environ() {
+		sp := strings.Split(env, "=")
+		k, v := sp[0], sp[1]
+		idx := min(len(v), 3)
+		log.Debug().Msg(fmt.Sprintf("%s=%s", k, v[:idx]+blur[idx:]))
+	}
 }
