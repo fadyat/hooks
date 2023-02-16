@@ -26,6 +26,8 @@ func TestParseTaskMention(t *testing.T) {
 		{"multiple mentions", "this is a test asana:123 asana:456", []entities.TaskMention{{ID: "123"}, {ID: "456"}}},
 		{"valid mention with invalid mention", "this is a test asana:123 asana:qwe", []entities.TaskMention{{ID: "123"}}},
 		{"multiple mentions w/o spaces", "this is a test asana:123asana:456", []entities.TaskMention{{ID: "123"}, {ID: "456"}}},
+		{"mention with asana task url", "made some cool feature, ref|https://app.asana/0/123/345", []entities.TaskMention{}},
+		{"cool valid branch name", "feature/asana-123-some-cool-feature", []entities.TaskMention{{ID: "123"}}},
 	}
 
 	for _, tt := range tests {
@@ -52,6 +54,7 @@ func TestRemoveTaskMentions(t *testing.T) {
 		{"mention with ref", "this is a test ref:123", "this is a test"},
 		{"multiple mentions", "this is a test asana:123 asana:456", "this is a test"},
 		{"multiple mentions w/o spaces", "this is a test asana:123asana:456", "this is a test"},
+		{"mention with asana task url", "ref|https://app.asana.com/0/23/45/f", "ref|https://app.asana.com/0/23/45/f"},
 	}
 
 	for _, tt := range tests {
