@@ -63,10 +63,13 @@ func (a *AsanaService) CreateComment(mention entities.TaskMention, value string)
 }
 
 func (a *AsanaService) UpdateLastCommitInfo(branchName string, lastCommit gitlab.Commit) error {
-	message := helpers.ConfigureMessageForTaskManager(
+	message, e := helpers.ConfigureMessageForTaskManager(
 		lastCommit.Message,
 		lastCommit.URL,
 	)
+	if e != nil {
+		return e
+	}
 
 	mentions := helpers.RemoveDuplicatesTaskMentions(
 		append(

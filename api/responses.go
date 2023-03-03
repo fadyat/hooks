@@ -7,6 +7,7 @@ type Response struct {
 }
 
 const (
-	NoTaskMentionsFound = "no task mentions found"
-	CustomFieldNotFound = "custom field not found"
+	NoTaskMentionsFound    = "no task mentions found"
+	CustomFieldNotFound    = "custom field not found"
+	MergeCommitUnsupported = "merge commits are unsupported"
 )

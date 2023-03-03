@@ -81,17 +81,23 @@ func (h *GitlabHandler) UpdateLastCommitInfo(c *gin.Context) {
 	})
 
 	err := h.tm.UpdateLastCommitInfo(helpers.GetBranchNameFromRef(r.Ref), r.Commits[0])
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, api.Response{
-			Ok:    false,
-			Error: err.Error(),
+	if err == nil {
+		c.JSON(http.StatusOK, api.Response{
+			Ok:     true,
+			Result: "updated",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, api.Response{
-		Ok:     true,
-		Result: "updated",
+	statusCode := http.StatusInternalServerError
+	switch err.Error() {
+	case api.MergeCommitUnsupported:
+		statusCode = http.StatusMethodNotAllowed
+	}
+
+	c.JSON(statusCode, api.Response{
+		Ok:    false,
+		Error: err.Error(),
 	})
 }
 

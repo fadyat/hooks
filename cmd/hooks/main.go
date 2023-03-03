@@ -52,7 +52,10 @@ func main() {
 
 	setupLogger()
 	setupAPIV1(r, cfg)
-	blurSecrets(&log.Logger)
+
+	if cfg.RepresentSecrets {
+		blurSecrets(&log.Logger)
+	}
 
 	addr := fmt.Sprintf(":%s", cfg.Port)
 	if err = r.Run(addr); err != nil {

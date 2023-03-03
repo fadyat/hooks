@@ -21,6 +21,9 @@ type HTTPAPI struct {
 
 	// Port to listen on
 	Port string `envconfig:"PORT" required:"true" default:"80"`
+
+	// RepresentSecrets make logging of blurred env variables on app start
+	RepresentSecrets bool `envconfig:"REPRESENT_SECRETS" required:"false" default:"false"`
 }
 
 // Load loads the configuration from the environment
