@@ -7,23 +7,29 @@ import (
 	"github.com/fadyat/hooks/api"
 	"github.com/fadyat/hooks/api/config"
 	"github.com/fadyat/hooks/api/entities"
-	"github.com/fadyat/hooks/api/entities/gitlab"
 	"github.com/fadyat/hooks/api/helpers"
 	"github.com/rs/zerolog"
 )
 
 type AsanaService struct {
-	c   *asana.Client
-	l   *zerolog.Logger
-	cfg *config.HTTPAPI
+	c            *asana.Client
+	l            *zerolog.Logger
+	cfg          *config.HTTPAPI
+	featureFlags *config.FeatureFlags
 }
 
 // NewAsanaService creates a new instance of the Asana service
-func NewAsanaService(apiKey string, l *zerolog.Logger, cfg *config.HTTPAPI) *AsanaService {
+func NewAsanaService(
+	apiKey string,
+	l *zerolog.Logger,
+	cfg *config.HTTPAPI,
+	ff *config.FeatureFlags,
+) *AsanaService {
 	return &AsanaService{
-		l:   l,
-		cfg: cfg,
-		c:   asana.NewClientWithAccessToken(apiKey),
+		l:            l,
+		cfg:          cfg,
+		c:            asana.NewClientWithAccessToken(apiKey),
+		featureFlags: ff,
 	}
 }
 
@@ -62,30 +68,26 @@ func (a *AsanaService) CreateComment(mention entities.TaskMention, value string)
 	return err
 }
 
-func (a *AsanaService) UpdateLastCommitInfo(branchName string, lastCommit gitlab.Commit) error {
-	message, e := helpers.ConfigureMessageForTaskManager(
-		lastCommit.Message,
-		lastCommit.URL,
-	)
+func (a *AsanaService) UpdateLastCommitInfo(branchName string, msg entities.Message) error {
+	message, e := helpers.ConfigureMessageForTaskManager(msg)
 	if e != nil {
 		return e
 	}
 
-	mentions := helpers.RemoveDuplicatesTaskMentions(
-		append(
-			helpers.ParseTaskMentions(branchName),
-			helpers.ParseTaskMentions(lastCommit.Message)...,
-		),
-	)
+	mentions := helpers.ParseTaskMentions(branchName)
+	if a.featureFlags.IsCommitMentionsEnabled {
+		mentions = append(mentions, helpers.ParseTaskMentions(msg.Text)...)
+	}
 
+	mentions = helpers.RemoveDuplicatesTaskMentions(mentions)
 	if len(mentions) == 0 {
-		a.l.Debug().Msgf("no task mentions found in branch name %s or commit message %s", branchName, lastCommit.Message)
+		a.l.Debug().Msgf("no task mentions found in branch name %s or commit message %s", branchName, msg.Text)
 		return errors.New(api.NoTaskMentionsFound)
 	}
 
 	var wrappedError error
 	for _, m := range mentions {
-		err := a.UpdateCustomField(m, a.cfg.LastCommitFieldName, lastCommit.URL)
+		err := a.UpdateCustomField(m, a.cfg.LastCommitFieldName, msg.URL)
 		if err == nil {
 			continue
 		}

@@ -8,7 +8,7 @@ swag:
 	swag init --generalInfo cmd/hooks/main.go --output api/docs
 	swag fmt
 
-hooks:
+run:
 	go run cmd/hooks/main.go
 
 tests:

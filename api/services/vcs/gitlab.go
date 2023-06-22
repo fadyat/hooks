@@ -14,10 +14,10 @@ import (
 type GitlabService struct {
 	c  *gitlab.Client
 	l  *zerolog.Logger
-	as tm.ITaskManager
+	tm tm.ITaskManager
 }
 
-func NewGitlabService(apiKey string, l *zerolog.Logger, as tm.ITaskManager) *GitlabService {
+func NewGitlabService(apiKey string, l *zerolog.Logger, t tm.ITaskManager) *GitlabService {
 	c, err := gitlab.NewClient(apiKey)
 	if err != nil {
 		l.Fatal().Err(err).Msg("failed to create gitlab client")
@@ -25,7 +25,7 @@ func NewGitlabService(apiKey string, l *zerolog.Logger, as tm.ITaskManager) *Git
 
 	return &GitlabService{
 		l:  l,
-		as: as,
+		tm: t,
 		c:  c,
 	}
 }
@@ -38,13 +38,13 @@ func (g *GitlabService) UpdatePRDescription(pid, prID int, branch, desc string) 
 
 	shortlinks := make([]entities.TaskMentionHidden, len(mentions))
 	for i, mention := range mentions {
-		sh, err := g.as.GetTaskShortLink(mention)
+		sh, err := g.tm.GetTaskShortLink(mention)
 		if err != nil {
 			log.Debug().Err(err).Msgf("failed to get short link for task %s", mention.ID)
 			continue
 		}
 
-		name, err := g.as.GetTaskName(mention)
+		name, err := g.tm.GetTaskName(mention)
 		if err != nil {
 			log.Debug().Err(err).Msgf("failed to get name for task %s", mention.ID)
 			name = mention.ID

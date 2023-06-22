@@ -5,7 +5,7 @@ import (
 	"github.com/fadyat/hooks/api"
 	"github.com/fadyat/hooks/api/config"
 	_ "github.com/fadyat/hooks/api/docs"
-	"github.com/fadyat/hooks/api/handlers"
+	"github.com/fadyat/hooks/api/handlers/gitlab"
 	"github.com/fadyat/hooks/api/services/tm"
 	"github.com/fadyat/hooks/api/services/vcs"
 	"github.com/gin-gonic/gin"
@@ -47,13 +47,18 @@ func main() {
 
 	cfg, err := config.Load()
 	if err != nil {
-		log.Info().Err(err).Msg("Failed to load config")
+		log.Fatal().Err(err).Msg("Failed to load config")
+	}
+
+	featureFlags, err := config.LoadFeatureFlags()
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to load feature flags")
 	}
 
 	setupLogger()
-	setupAPIV1(r, cfg)
+	setupAPIV1(r, cfg, featureFlags)
 
-	if cfg.RepresentSecrets {
+	if featureFlags.IsRepresentSecretsEnabled {
 		blurSecrets(&log.Logger)
 	}
 
@@ -67,15 +72,16 @@ func setupLogger() {
 	zerolog.TimeFieldFormat = time.RFC822
 }
 
-func setupAPIV1(r *gin.Engine, cfg *config.HTTPAPI) {
+func setupAPIV1(r *gin.Engine, cfg *config.HTTPAPI, featureFlags *config.FeatureFlags) {
 	v1 := r.Group("/api/v1")
 	v1.GET("/ping", ping)
 
-	asana := tm.NewAsanaService(cfg.AsanaAPIKey, &log.Logger, cfg)
-	gitlab := vcs.NewGitlabService(cfg.GitlabAPIKey, &log.Logger, asana)
-	gh := handlers.NewGitlabHandler(cfg, &log.Logger, asana, gitlab)
+	as := tm.NewAsanaService(cfg.AsanaAPIKey, &log.Logger, cfg, featureFlags)
+	gs := vcs.NewGitlabService(cfg.GitlabAPIKey, &log.Logger, as)
+	gh := gitlab.NewHandler(cfg, &log.Logger, as, gs)
 	v1.POST("/asana/push", gh.UpdateLastCommitInfo)
-	v1.POST("/gitlab/merge", gh.UpdateMergeRequestDescription)
+	v1.POST("/gitlab/update_mr_description", gh.UpdateMergeRequestDescription)
+	v1.POST("/asana/merge", gh.OnBranchMerge)
 }
 
 func min(a, b int) int {
@@ -86,13 +92,13 @@ func min(a, b int) int {
 	return a
 }
 
-func blurSecrets(log *zerolog.Logger) {
+func blurSecrets(lg *zerolog.Logger) {
 	blur := "***************"
 
 	for _, env := range os.Environ() {
 		sp := strings.Split(env, "=")
 		k, v := sp[0], sp[1]
 		idx := min(len(v), 3)
-		log.Debug().Msg(fmt.Sprintf("%s=%s", k, v[:idx]+blur[idx:]))
+		lg.Debug().Msg(fmt.Sprintf("%s=%s", k, v[:idx]+blur[idx:]))
 	}
 }

@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 )
@@ -21,18 +22,38 @@ type HTTPAPI struct {
 
 	// Port to listen on
 	Port string `envconfig:"PORT" required:"true" default:"80"`
+}
 
-	// RepresentSecrets make logging of blurred env variables on app start
-	RepresentSecrets bool `envconfig:"REPRESENT_SECRETS" required:"false" default:"false"`
+type FeatureFlags struct {
+
+	// IsCommitMentionsEnabled enables commit mentions
+	IsCommitMentionsEnabled bool `envconfig:"IS_COMMIT_MENTIONS_ENABLED" required:"false" default:"false"`
+
+	// IsRepresentSecretsEnabled enables some blurring of secrets in logs
+	IsRepresentSecretsEnabled bool `envconfig:"IS_REPRESENT_SECRETS_ENABLED" required:"false" default:"false"`
 }
 
 // Load loads the configuration from the environment
 func Load() (*HTTPAPI, error) {
 	if err := godotenv.Load(); err != nil {
-		return nil, err
+		fmt.Println("Error loading .env file")
 	}
 
 	var cfg HTTPAPI
+	if err := envconfig.Process("", &cfg); err != nil {
+		return nil, err
+	}
+
+	return &cfg, nil
+}
+
+// LoadFeatureFlags loads the feature flags from the environment
+func LoadFeatureFlags() (*FeatureFlags, error) {
+	if err := godotenv.Load(); err != nil {
+		fmt.Println("Error loading .env file")
+	}
+
+	var cfg FeatureFlags
 	if err := envconfig.Process("", &cfg); err != nil {
 		return nil, err
 	}

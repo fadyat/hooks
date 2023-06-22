@@ -373,6 +373,45 @@ info:
   title: Hooks API
   version: 1.0.0
 paths:
+  /api/v1/asana/merge:
+    post:
+      consumes:
+      - application/json
+      description: Update last commit info, based on merge event of MR
+      parameters:
+      - description: Gitlab event
+        in: header
+        name: X-Gitlab-Event
+        required: true
+        type: string
+      - description: Gitlab token
+        in: header
+        name: X-Gitlab-Token
+        required: true
+        type: string
+      - description: Gitlab request body
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/gitlab.PushRequestHook'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/api.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/api.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/api.Response'
   /api/v1/asana/push:
     post:
       consumes:

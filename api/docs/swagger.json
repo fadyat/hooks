@@ -20,6 +20,65 @@
     },
     "basePath": "/api/v1",
     "paths": {
+        "/api/v1/asana/merge": {
+            "post": {
+                "description": "Update last commit info, based on merge event of MR",
+                "consumes": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Gitlab event",
+                        "name": "X-Gitlab-Event",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Gitlab token",
+                        "name": "X-Gitlab-Token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "Gitlab request body",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gitlab.PushRequestHook"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/api.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/api.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/api.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/asana/push": {
             "post": {
                 "description": "Update last commit info, in custom field or creating a comment",
