@@ -13,17 +13,30 @@ func GetBranchNameFromRef(ref string) string {
 	return strings.TrimPrefix(ref, "refs/heads/")
 }
 
+// isMergeCommit checks if the commit message is a merge commit
+//
+// Ignoring merge commits for a push events, because they are not related to the task
 func isMergeCommit(message string) bool {
 	return strings.HasPrefix(message, "Merge branch")
 }
 
-func ConfigureMessageForTaskManager(message, vcsLink string) (string, error) {
-	clearMessage := RemoveTaskMentions(message)
-	if isMergeCommit(message) {
+// isCustomMergeCommit checks if the commit message is an imitated merge commit
+//
+// Used in /api/handlers/gitlab/last_commit_mergebased.go
+func isCustomMergeCommit(message string) bool {
+	return strings.Contains(message, "is merged into")
+}
+
+func ConfigureMessageForTaskManager(msg entities.Message) (string, error) {
+	if isCustomMergeCommit(msg.Text) {
+		return fmt.Sprintf("%s\n\n%s", msg.URL, msg.Text), nil
+	}
+
+	if isMergeCommit(msg.Text) {
 		return "", errors.New(api.MergeCommitUnsupported)
 	}
 
-	return fmt.Sprintf("%s\n\n%s", vcsLink, clearMessage), nil
+	return fmt.Sprintf("%s\n\n%s", msg.URL, RemoveTaskMentions(msg.Text)), nil
 }
 
 func WrapError(err1, err2 error) error {

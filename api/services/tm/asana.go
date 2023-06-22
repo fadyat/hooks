@@ -7,7 +7,6 @@ import (
 	"github.com/fadyat/hooks/api"
 	"github.com/fadyat/hooks/api/config"
 	"github.com/fadyat/hooks/api/entities"
-	"github.com/fadyat/hooks/api/entities/gitlab"
 	"github.com/fadyat/hooks/api/helpers"
 	"github.com/rs/zerolog"
 )
@@ -62,11 +61,8 @@ func (a *AsanaService) CreateComment(mention entities.TaskMention, value string)
 	return err
 }
 
-func (a *AsanaService) UpdateLastCommitInfo(branchName string, lastCommit gitlab.Commit) error {
-	message, e := helpers.ConfigureMessageForTaskManager(
-		lastCommit.Message,
-		lastCommit.URL,
-	)
+func (a *AsanaService) UpdateLastCommitInfo(branchName string, msg entities.Message) error {
+	message, e := helpers.ConfigureMessageForTaskManager(msg)
 	if e != nil {
 		return e
 	}
@@ -74,18 +70,18 @@ func (a *AsanaService) UpdateLastCommitInfo(branchName string, lastCommit gitlab
 	mentions := helpers.RemoveDuplicatesTaskMentions(
 		append(
 			helpers.ParseTaskMentions(branchName),
-			helpers.ParseTaskMentions(lastCommit.Message)...,
+			helpers.ParseTaskMentions(msg.Text)...,
 		),
 	)
 
 	if len(mentions) == 0 {
-		a.l.Debug().Msgf("no task mentions found in branch name %s or commit message %s", branchName, lastCommit.Message)
+		a.l.Debug().Msgf("no task mentions found in branch name %s or commit message %s", branchName, msg.Text)
 		return errors.New(api.NoTaskMentionsFound)
 	}
 
 	var wrappedError error
 	for _, m := range mentions {
-		err := a.UpdateCustomField(m, a.cfg.LastCommitFieldName, lastCommit.URL)
+		err := a.UpdateCustomField(m, a.cfg.LastCommitFieldName, msg.URL)
 		if err == nil {
 			continue
 		}

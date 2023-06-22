@@ -5,7 +5,7 @@ import (
 	"github.com/fadyat/hooks/api"
 	"github.com/fadyat/hooks/api/config"
 	_ "github.com/fadyat/hooks/api/docs"
-	"github.com/fadyat/hooks/api/handlers"
+	"github.com/fadyat/hooks/api/handlers/gitlab"
 	"github.com/fadyat/hooks/api/services/tm"
 	"github.com/fadyat/hooks/api/services/vcs"
 	"github.com/gin-gonic/gin"
@@ -71,11 +71,12 @@ func setupAPIV1(r *gin.Engine, cfg *config.HTTPAPI) {
 	v1 := r.Group("/api/v1")
 	v1.GET("/ping", ping)
 
-	asana := tm.NewAsanaService(cfg.AsanaAPIKey, &log.Logger, cfg)
-	gitlab := vcs.NewGitlabService(cfg.GitlabAPIKey, &log.Logger, asana)
-	gh := handlers.NewGitlabHandler(cfg, &log.Logger, asana, gitlab)
+	as := tm.NewAsanaService(cfg.AsanaAPIKey, &log.Logger, cfg)
+	gs := vcs.NewGitlabService(cfg.GitlabAPIKey, &log.Logger, as)
+	gh := gitlab.NewHandler(cfg, &log.Logger, as, gs)
 	v1.POST("/asana/push", gh.UpdateLastCommitInfo)
-	v1.POST("/gitlab/merge", gh.UpdateMergeRequestDescription)
+	v1.POST("/gitlab/update_mr_description", gh.UpdateMergeRequestDescription)
+	v1.POST("/asana/merge", gh.OnBranchMerge)
 }
 
 func min(a, b int) int {

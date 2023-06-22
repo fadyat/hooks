@@ -109,20 +109,20 @@ type MergeRequestHook struct {
 				Email string `json:"email"`
 			} `json:"author"`
 		} `json:"last_commit"`
-		WorkInProgress              bool          `json:"work_in_progress"`
-		TotalTimeSpent              int           `json:"total_time_spent"`
-		TimeChange                  int           `json:"time_change"`
-		HumanTotalTimeSpent         interface{}   `json:"human_total_time_spent"`
-		HumanTimeChange             interface{}   `json:"human_time_change"`
-		HumanTimeEstimate           interface{}   `json:"human_time_estimate"`
-		AssigneeIds                 []interface{} `json:"assignee_ids"`
-		ReviewerIds                 []interface{} `json:"reviewer_ids"`
-		Labels                      []interface{} `json:"labels"`
-		State                       string        `json:"state"`
-		BlockingDiscussionsResolved bool          `json:"blocking_discussions_resolved"`
-		FirstContribution           bool          `json:"first_contribution"`
-		DetailedMergeStatus         string        `json:"detailed_merge_status"`
-		Action                      string        `json:"action"`
+		WorkInProgress              bool               `json:"work_in_progress"`
+		TotalTimeSpent              int                `json:"total_time_spent"`
+		TimeChange                  int                `json:"time_change"`
+		HumanTotalTimeSpent         interface{}        `json:"human_total_time_spent"`
+		HumanTimeChange             interface{}        `json:"human_time_change"`
+		HumanTimeEstimate           interface{}        `json:"human_time_estimate"`
+		AssigneeIds                 []interface{}      `json:"assignee_ids"`
+		ReviewerIds                 []interface{}      `json:"reviewer_ids"`
+		Labels                      []interface{}      `json:"labels"`
+		State                       string             `json:"state"`
+		BlockingDiscussionsResolved bool               `json:"blocking_discussions_resolved"`
+		FirstContribution           bool               `json:"first_contribution"`
+		DetailedMergeStatus         string             `json:"detailed_merge_status"`
+		Action                      MergeRequestAction `json:"action"`
 	} `json:"object_attributes"`
 	Labels  []interface{} `json:"labels"`
 	Changes struct {
@@ -139,6 +139,9 @@ type MergeRequestHook struct {
 	} `json:"repository"`
 }
 
+type MergeRequestAction string
+
 const (
-	MergeRequestActionOpen = "open"
+	MergeRequestActionOpen  MergeRequestAction = "open"
+	MergeRequestActionMerge MergeRequestAction = "merge"
 )

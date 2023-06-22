@@ -2,7 +2,6 @@ package tm
 
 import (
 	"github.com/fadyat/hooks/api/entities"
-	"github.com/fadyat/hooks/api/entities/gitlab"
 )
 
 // ITaskManager is the interface for the task manager
@@ -17,9 +16,7 @@ type ITaskManager interface {
 	CreateComment(mention entities.TaskMention, value string) error
 
 	// UpdateLastCommitInfo updates the last commit info of a task
-	//
-	// todo: replace gitlab.Commit with a generic Commit struct
-	UpdateLastCommitInfo(branchName string, lastCommit gitlab.Commit) error
+	UpdateLastCommitInfo(branchName string, msg entities.Message) error
 
 	// GetTaskShortLink returns the short link of a task
 	//
