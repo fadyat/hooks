@@ -47,13 +47,18 @@ func main() {
 
 	cfg, err := config.Load()
 	if err != nil {
-		log.Info().Err(err).Msg("Failed to load config")
+		log.Fatal().Err(err).Msg("Failed to load config")
+	}
+
+	featureFlags, err := config.LoadFeatureFlags()
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to load feature flags")
 	}
 
 	setupLogger()
-	setupAPIV1(r, cfg)
+	setupAPIV1(r, cfg, featureFlags)
 
-	if cfg.RepresentSecrets {
+	if featureFlags.IsRepresentSecretsEnabled {
 		blurSecrets(&log.Logger)
 	}
 
@@ -67,11 +72,11 @@ func setupLogger() {
 	zerolog.TimeFieldFormat = time.RFC822
 }
 
-func setupAPIV1(r *gin.Engine, cfg *config.HTTPAPI) {
+func setupAPIV1(r *gin.Engine, cfg *config.HTTPAPI, featureFlags *config.FeatureFlags) {
 	v1 := r.Group("/api/v1")
 	v1.GET("/ping", ping)
 
-	as := tm.NewAsanaService(cfg.AsanaAPIKey, &log.Logger, cfg)
+	as := tm.NewAsanaService(cfg.AsanaAPIKey, &log.Logger, cfg, featureFlags)
 	gs := vcs.NewGitlabService(cfg.GitlabAPIKey, &log.Logger, as)
 	gh := gitlab.NewHandler(cfg, &log.Logger, as, gs)
 	v1.POST("/asana/push", gh.UpdateLastCommitInfo)
@@ -87,13 +92,13 @@ func min(a, b int) int {
 	return a
 }
 
-func blurSecrets(log *zerolog.Logger) {
+func blurSecrets(lg *zerolog.Logger) {
 	blur := "***************"
 
 	for _, env := range os.Environ() {
 		sp := strings.Split(env, "=")
 		k, v := sp[0], sp[1]
 		idx := min(len(v), 3)
-		log.Debug().Msg(fmt.Sprintf("%s=%s", k, v[:idx]+blur[idx:]))
+		lg.Debug().Msg(fmt.Sprintf("%s=%s", k, v[:idx]+blur[idx:]))
 	}
 }

@@ -22,11 +22,11 @@ type Handler struct {
 	vcs vcs.IVCS
 }
 
-func NewHandler(cfg *config.HTTPAPI, l *zerolog.Logger, tm tm.ITaskManager, v vcs.IVCS) *Handler {
+func NewHandler(cfg *config.HTTPAPI, l *zerolog.Logger, t tm.ITaskManager, v vcs.IVCS) *Handler {
 	return &Handler{
 		cfg: cfg,
 		l:   l,
-		tm:  tm,
+		tm:  t,
 		vcs: v,
 	}
 }

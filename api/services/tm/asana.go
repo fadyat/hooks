@@ -12,17 +12,24 @@ import (
 )
 
 type AsanaService struct {
-	c   *asana.Client
-	l   *zerolog.Logger
-	cfg *config.HTTPAPI
+	c            *asana.Client
+	l            *zerolog.Logger
+	cfg          *config.HTTPAPI
+	featureFlags *config.FeatureFlags
 }
 
 // NewAsanaService creates a new instance of the Asana service
-func NewAsanaService(apiKey string, l *zerolog.Logger, cfg *config.HTTPAPI) *AsanaService {
+func NewAsanaService(
+	apiKey string,
+	l *zerolog.Logger,
+	cfg *config.HTTPAPI,
+	ff *config.FeatureFlags,
+) *AsanaService {
 	return &AsanaService{
-		l:   l,
-		cfg: cfg,
-		c:   asana.NewClientWithAccessToken(apiKey),
+		l:            l,
+		cfg:          cfg,
+		c:            asana.NewClientWithAccessToken(apiKey),
+		featureFlags: ff,
 	}
 }
 
@@ -67,13 +74,12 @@ func (a *AsanaService) UpdateLastCommitInfo(branchName string, msg entities.Mess
 		return e
 	}
 
-	mentions := helpers.RemoveDuplicatesTaskMentions(
-		append(
-			helpers.ParseTaskMentions(branchName),
-			helpers.ParseTaskMentions(msg.Text)...,
-		),
-	)
+	mentions := helpers.ParseTaskMentions(branchName)
+	if a.featureFlags.IsCommitMentionsEnabled {
+		mentions = append(mentions, helpers.ParseTaskMentions(msg.Text)...)
+	}
 
+	mentions = helpers.RemoveDuplicatesTaskMentions(mentions)
 	if len(mentions) == 0 {
 		a.l.Debug().Msgf("no task mentions found in branch name %s or commit message %s", branchName, msg.Text)
 		return errors.New(api.NoTaskMentionsFound)

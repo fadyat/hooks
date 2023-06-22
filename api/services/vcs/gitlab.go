@@ -17,7 +17,7 @@ type GitlabService struct {
 	tm tm.ITaskManager
 }
 
-func NewGitlabService(apiKey string, l *zerolog.Logger, tm tm.ITaskManager) *GitlabService {
+func NewGitlabService(apiKey string, l *zerolog.Logger, t tm.ITaskManager) *GitlabService {
 	c, err := gitlab.NewClient(apiKey)
 	if err != nil {
 		l.Fatal().Err(err).Msg("failed to create gitlab client")
@@ -25,7 +25,7 @@ func NewGitlabService(apiKey string, l *zerolog.Logger, tm tm.ITaskManager) *Git
 
 	return &GitlabService{
 		l:  l,
-		tm: tm,
+		tm: t,
 		c:  c,
 	}
 }
