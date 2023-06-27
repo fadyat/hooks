@@ -48,6 +48,7 @@ linters:
     - nakedret
     - gosimple
     - prealloc
+    - staticcheck
   fast: false
   disable-all: true
 
