@@ -79,9 +79,13 @@ func setupAPIV1(r *gin.Engine, cfg *config.HTTPAPI, featureFlags *config.Feature
 	as := tm.NewAsanaService(cfg.AsanaAPIKey, &log.Logger, cfg, featureFlags)
 	gs := vcs.NewGitlabService(cfg.GitlabAPIKey, &log.Logger, as)
 	gh := gitlab.NewHandler(cfg, &log.Logger, as, gs)
-	v1.POST("/asana/push", gh.UpdateLastCommitInfo)
-	v1.POST("/gitlab/update_mr_description", gh.UpdateMergeRequestDescription)
-	v1.POST("/asana/merge", gh.OnBranchMerge)
+
+	toAsana := v1.Group("/asana")
+	toAsana.POST("/push", gh.UpdateLastCommitInfo)
+	toAsana.POST("/merge", gh.OnBranchMerge)
+
+	toGitlab := v1.Group("/gitlab")
+	toGitlab.POST("/sync_description", gh.SyncMRDescriptionWithAsanaTasks)
 }
 
 func min(a, b int) int {

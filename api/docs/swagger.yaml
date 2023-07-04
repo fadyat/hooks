@@ -451,7 +451,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/api.Response'
-  /api/v1/gitlab/merge:
+  /api/v1/gitlab/sync_description:
     post:
       consumes:
       - application/json

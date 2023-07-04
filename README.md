@@ -34,44 +34,46 @@ Works for multiple passed tasks.
 - Set up a webhook in Gitlab
     * URL: <endpoint>
     * Secret Token: <your-secret-token>
-    * Trigger: Push events
+    * Trigger: Push events / Merge request events
 ```
 
 #### Endpoints:
 
-```text
-- POST /api/v1/asana/push
-  * last commit info to a task. (to custom field or comment)
-- POST /api/v1/gitlab/merge
-  * binding a short link of the asana task to the description of MR
-- POST /api/v1/asana/merge
-  * send a message to the task about the merge of the MR
-```
+| Endpoint                          | Trigger                | Description                                                     |
+|-----------------------------------|------------------------|-----------------------------------------------------------------|
+| `/api/v1/asana/push`              | `push events`          | Notify asana about the last commit in the branch                |
+| `/api/v1/gitlab/sync_description` | `merge request events` | Binding a short link of the asana task to the description of MR |
+| `/api/v1/asana/merge`             | `merge request events` | Notify asana about the merge of the branch                      |
 
 ### Configuration
 
 - Put in `.env` file in the root of the project, or set up environment variables.
 
-```text
-// asana access token for editing tasks custom fields
+```dotenv
+# asana access token for editing tasks custom fields
 ASANA_API_KEY=<your api key>
 
-// secret tokens that will be used to verify the webhook
+# secret tokens that will be used to verify the webhook
 GITLAB_SECRET_TOKENS=<list of tokens> 
 
-// gitlab api key for updating the merge request description
-// sure, that generated token has access to the project!
+# gitlab api key for updating the merge request description
+# make sure, that generated token has access to the project!
+#
+# minimal required permissions:
+# - role: developer
+# - scopes: api
+# 
 GITLAB_API_KEY=<your api key>
 ```
 
 ### Feature flags:
 
-```text
-// getting task mentions from commit message
-IS_COMMIT_MENTIONS_ENABLED=<true|false> // default: false
+```dotenv
+# getting task mentions from commit message
+IS_COMMIT_MENTIONS_ENABLED=<true|false> # default: false
 
-// make some blured logs when server is started
-IS_REPRESENT_SECRETS_ENABLED=<true|false> // default: false
+# make some blured logs when server is started
+IS_REPRESENT_SECRETS_ENABLED=<true|false> # default: false
 ```
 
 ### Documentation

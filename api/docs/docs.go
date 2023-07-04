@@ -142,7 +142,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/gitlab/merge": {
+        "/api/v1/gitlab/sync_description": {
             "post": {
                 "description": "Update merge request description with the task info",
                 "consumes": [
