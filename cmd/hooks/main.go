@@ -20,25 +20,25 @@ import (
 )
 
 // PingExample godoc
-// @Tags    example
-// @Success 200 {string} string "pong"
-// @Router  /api/v1/ping [get]
+//	@Tags		example
+//	@Success	200	{string}	string	"pong"
+//	@Router		/api/v1/ping [get]
 func ping(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "pong",
 	})
 }
 
-// @title          Hooks API
-// @version        1.0.0
-// @description    This is a sample server Hooks API.
-// @termsOfService https://swagger.io/terms/
-// @contact.name   Fadeyev Artyom
-// @contact.url    https://github.com/fadyat
-// @license.name   MIT
-// @license.url    https://github.com/MartinHeinz/go-project-blueprint/blob/master/LICENSE
-// @schemes        http https
-// @BasePath       /api/v1
+//	@title			Hooks API
+//	@version		1.0.0
+//	@description	This is a sample server Hooks API.
+//	@termsOfService	https://swagger.io/terms/
+//	@contact.name	Fadeyev Artyom
+//	@contact.url	https://github.com/fadyat
+//	@license.name	MIT
+//	@license.url	https://github.com/MartinHeinz/go-project-blueprint/blob/master/LICENSE
+//	@schemes		http https
+//	@BasePath		/api/v1
 func main() {
 	r := gin.New()
 	r.Use(gin.Recovery())

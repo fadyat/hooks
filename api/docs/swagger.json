@@ -273,6 +273,17 @@
                 }
             }
         },
+        "gitlab.MergeRequestAction": {
+            "type": "string",
+            "enum": [
+                "open",
+                "merge"
+            ],
+            "x-enum-varnames": [
+                "MergeRequestActionOpen",
+                "MergeRequestActionMerge"
+            ]
+        },
         "gitlab.MergeRequestHook": {
             "type": "object",
             "properties": {
@@ -303,7 +314,7 @@
                     "type": "object",
                     "properties": {
                         "action": {
-                            "type": "string"
+                            "$ref": "#/definitions/gitlab.MergeRequestAction"
                         },
                         "assignee_id": {},
                         "assignee_ids": {

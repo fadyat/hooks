@@ -1,0 +1,42 @@
+on:
+  push:
+    paths:
+      - 'cmd/**'
+      - 'api/**'
+      - 'build/Dockerfile'
+    tags:
+      - v*
+
+env:
+  IMAGE_NAME: 'hooks'
+  GO_VERSION: 1.19
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+      - name: setup golang
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ env.GO_VERSION }}
+      - name: build
+        run: docker build ./build --file Dockerfile \
+          --tag $IMAGE_NAME \
+          --label RUN_NUMBER=$GITHUB_RUN_ID
+      - name: login
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      - name: push
+        run: |
+          IMAGE_ID=ghcr.io/${{ github.repository_owner }}/$IMAGE_NAME
+          IMAGE_ID=$(echo $IMAGE_ID | tr '[:upper:]' '[:lower:]')
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          echo IMAGE_ID=$IMAGE_ID VERSION=$VERSION
+          docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
+          docker push $IMAGE_ID:$VERSION
