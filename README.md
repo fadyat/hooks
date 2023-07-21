@@ -64,6 +64,10 @@ GITLAB_SECRET_TOKENS=<list of tokens>
 # - scopes: api
 # 
 GITLAB_API_KEY=<your api key>
+
+# if you using a self-hosted gitlab, you can specify the url
+# default: https://gitlab.com/api/v4
+GITLAB_DOMAIN=<your gitlab domain>
 ```
 
 ### Feature flags:

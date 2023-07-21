@@ -77,7 +77,7 @@ func setupAPIV1(r *gin.Engine, cfg *config.HTTPAPI, featureFlags *config.Feature
 	v1.GET("/ping", ping)
 
 	as := tm.NewAsanaService(cfg.AsanaAPIKey, &log.Logger, cfg, featureFlags)
-	gs := vcs.NewGitlabService(cfg.GitlabAPIKey, &log.Logger, as)
+	gs := vcs.NewGitlabService(cfg.GitlabAPIKey, cfg.GitlabDomain, &log.Logger, as)
 	gh := gitlab.NewHandler(cfg, &log.Logger, as, gs)
 
 	toAsana := v1.Group("/asana")

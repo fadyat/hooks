@@ -20,6 +20,9 @@ type HTTPAPI struct {
 	// Gitlab API Access Token
 	GitlabAPIKey string `envconfig:"GITLAB_API_KEY" required:"true"`
 
+	// Gitlab Domain
+	GitlabDomain string `envconfig:"GITLAB_DOMAIN" required:"true" default:"https://gitlab.com/api/v4/"`
+
 	// Port to listen on
 	Port string `envconfig:"PORT" required:"true" default:"80"`
 }
