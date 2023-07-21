@@ -39,6 +39,14 @@ definitions:
       url:
         type: string
     type: object
+  gitlab.MergeRequestAction:
+    enum:
+    - open
+    - merge
+    type: string
+    x-enum-varnames:
+    - MergeRequestActionOpen
+    - MergeRequestActionMerge
   gitlab.MergeRequestHook:
     properties:
       changes:
@@ -59,7 +67,7 @@ definitions:
       object_attributes:
         properties:
           action:
-            type: string
+            $ref: '#/definitions/gitlab.MergeRequestAction'
           assignee_id: {}
           assignee_ids:
             items: {}

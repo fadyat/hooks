@@ -32,16 +32,16 @@ func NewHandler(cfg *config.HTTPAPI, l *zerolog.Logger, t tm.ITaskManager, v vcs
 }
 
 // UpdateLastCommitInfo updates the last commit info of a task
-// @Description Update last commit info, in custom field or creating a comment
-// @Accept      json
-// @Param       X-Gitlab-Event header   string                 true "Gitlab event"
-// @Param       X-Gitlab-Token header   string                 true "Gitlab token"
-// @Param       body           body     gitlab.PushRequestHook true "Gitlab request body"
-// @Success     200            {object} api.Response
-// @Failure     400            {object} api.Response
-// @Failure     401            {object} api.Response
-// @Failure     500            {object} api.Response
-// @Router      /api/v1/asana/push [post]
+//	@Description	Update last commit info, in custom field or creating a comment
+//	@Accept			json
+//	@Param			X-Gitlab-Event	header		string					true	"Gitlab event"
+//	@Param			X-Gitlab-Token	header		string					true	"Gitlab token"
+//	@Param			body			body		gitlab.PushRequestHook	true	"Gitlab request body"
+//	@Success		200				{object}	api.Response
+//	@Failure		400				{object}	api.Response
+//	@Failure		401				{object}	api.Response
+//	@Failure		500				{object}	api.Response
+//	@Router			/api/v1/asana/push [post]
 func (h *Handler) UpdateLastCommitInfo(c *gin.Context) {
 	if c.Request.Header.Get("X-Gitlab-Event") != gitlab.PushEvent {
 		c.JSON(http.StatusBadRequest, api.Response{

@@ -11,16 +11,16 @@ import (
 // SyncMRDescriptionWithAsanaTasks updates the merge request description with the task info
 // based on the mentioned tasks in the branch name
 //
-// @Description Update merge request description with the task info
-// @Accept      json
-// @Param       X-Gitlab-Event header   string                  true "Gitlab event"
-// @Param       X-Gitlab-Token header   string                  true "Gitlab token"
-// @Param       body           body     gitlab.MergeRequestHook true "Gitlab request body"
-// @Success     200            {object} api.Response
-// @Failure     400            {object} api.Response
-// @Failure     401            {object} api.Response
-// @Failure     500            {object} api.Response
-// @Router      /api/v1/gitlab/sync_description [post]
+//	@Description	Update merge request description with the task info
+//	@Accept			json
+//	@Param			X-Gitlab-Event	header		string					true	"Gitlab event"
+//	@Param			X-Gitlab-Token	header		string					true	"Gitlab token"
+//	@Param			body			body		gitlab.MergeRequestHook	true	"Gitlab request body"
+//	@Success		200				{object}	api.Response
+//	@Failure		400				{object}	api.Response
+//	@Failure		401				{object}	api.Response
+//	@Failure		500				{object}	api.Response
+//	@Router			/api/v1/gitlab/sync_description [post]
 func (h *Handler) SyncMRDescriptionWithAsanaTasks(c *gin.Context) {
 	if c.Request.Header.Get("X-Gitlab-Event") != gitlab.MergeEvent {
 		c.JSON(http.StatusBadRequest, api.Response{

@@ -26,3 +26,5 @@ compose-private.yml
 /backend/_example/*/vendor
 http-client.env.json
 /playwright-report/
+main
+changelog.txt

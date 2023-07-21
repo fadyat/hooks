@@ -11,16 +11,16 @@ import (
 )
 
 // OnBranchMerge handles the merge event and updates the last commit info
-// @Description Update last commit info, based on merge event of MR
-// @Accept      json
-// @Param       X-Gitlab-Event header   string                 true "Gitlab event"
-// @Param       X-Gitlab-Token header   string                 true "Gitlab token"
-// @Param       body           body     gitlab.PushRequestHook true "Gitlab request body"
-// @Success     200            {object} api.Response
-// @Failure     400            {object} api.Response
-// @Failure     401            {object} api.Response
-// @Failure     500            {object} api.Response
-// @Router      /api/v1/asana/merge [post]
+//	@Description	Update last commit info, based on merge event of MR
+//	@Accept			json
+//	@Param			X-Gitlab-Event	header		string					true	"Gitlab event"
+//	@Param			X-Gitlab-Token	header		string					true	"Gitlab token"
+//	@Param			body			body		gitlab.PushRequestHook	true	"Gitlab request body"
+//	@Success		200				{object}	api.Response
+//	@Failure		400				{object}	api.Response
+//	@Failure		401				{object}	api.Response
+//	@Failure		500				{object}	api.Response
+//	@Router			/api/v1/asana/merge [post]
 func (h *Handler) OnBranchMerge(c *gin.Context) {
 	if c.Request.Header.Get("X-Gitlab-Event") != gitlab.MergeEvent {
 		c.JSON(http.StatusBadRequest, api.Response{

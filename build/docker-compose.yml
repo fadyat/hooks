@@ -1,10 +1,34 @@
 version: "3.7"
+
 services:
   api:
+    container_name: hooks
     build:
       context: ../.
       dockerfile: ./build/Dockerfile
+    environment:
+      ASANA_API_KEY: ""
+      GITLAB_API_KEY: ""
+      GITLAB_DOMAIN: "https://gitlab.com"
+      GITLAB_SECRET_TOKENS: "dev"
+      GIN_MODE: "debug"
+      IS_COMMIT_MENTIONS_ENABLED: "true"
+      IS_REPRESENT_SECRETS_ENABLED: "true"
     ports:
       - "80:80"
     volumes:
       - .:/app
+
+  api_registry:
+    container_name: hooks_registry
+    image: ghcr.io/fadyat/hooks:latest
+    environment:
+      ASANA_API_KEY: ""
+      GITLAB_API_KEY: ""
+      GITLAB_DOMAIN: "https://gitlab.com"
+      GITLAB_SECRET_TOKENS: "dev"
+      GIN_MODE: "debug"
+      IS_COMMIT_MENTIONS_ENABLED: "true"
+      IS_REPRESENT_SECRETS_ENABLED: "true"
+    ports:
+      - "80:80"

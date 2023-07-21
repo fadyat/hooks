@@ -1,13 +1,19 @@
+output:
+  print-issued-lines: true
+
 run:
   timeout: 5m
-  output:
-    format: tab
+  allow-parallel-runners: true
+  concurrency: 2
+  issue-exit-code: 1
   skip-dirs:
     - vendor
 
 linters-settings:
   govet:
     check-shadowing: true
+  golint:
+    min-confidence: 0.1
   maligned:
     suggest-new: true
   goconst:
@@ -22,22 +28,19 @@ linters-settings:
       - performance
       - style
       - experimental
-    disabled-checks:
-      - wrapperFunc
-      - hugeParam
-      - rangeValCopy
 
 linters:
+  fast: false
+  disable-all: true
   enable:
-    - bodyclose
     - megacheck
+    - sqlclosecheck
     - govet
     - unconvert
+    - megacheck
     - gas
-    - gocyclo
     - dupl
     - misspell
-    - unparam
     - unused
     - typecheck
     - ineffassign
@@ -48,18 +51,16 @@ linters:
     - nakedret
     - gosimple
     - prealloc
-    - staticcheck
-  fast: false
-  disable-all: true
+    - gosec
 
 issues:
   exclude-rules:
     - text: "at least one file in a package should have a package comment"
       linters:
         - stylecheck
-    - text: "package-comments: should have a package comment"
+    - text: "should have a package comment, unless it's in another file for this package"
       linters:
-        - revive
+        - golint
     - path: _test\.go
       linters:
         - gosec
