@@ -46,7 +46,7 @@ type MergeRequestHook struct {
 		MergeCommitSha string      `json:"merge_commit_sha"`
 		MergeError     interface{} `json:"merge_error"`
 		MergeParams    struct {
-			ForceRemoveSourceBranch string `json:"force_remove_source_branch"`
+			ForceRemoveSourceBranch bool `json:"force_remove_source_branch"`
 		} `json:"merge_params"`
 		MergeStatus               string      `json:"merge_status"`
 		MergeUserID               interface{} `json:"merge_user_id"`
