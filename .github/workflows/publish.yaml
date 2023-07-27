@@ -28,8 +28,18 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: ${{ env.GO_VERSION }}
+      - name: format version
+        run: |
+          VERSION=$(echo "${{ github.ref }}" | sed -e 's,.*/\(.*\),\1,')
+          [[ "${{ github.ref }}" == "refs/tags/"* ]] && VERSION=$(echo $VERSION | sed -e 's/^v//')
+          echo VERSION=$VERSION >> $GITHUB_ENV
       - name: build
-        run: docker build -f ./build/Dockerfile -t $IMAGE_NAME --label RUN_NUMBER=$GITHUB_RUN_ID .
+        run: |
+          docker build \
+            -f ./build/Dockerfile \
+            -t $IMAGE_NAME \
+            --build-arg VERSION=${{ env.VERSION }} \
+            --label RUN_NUMBER=$GITHUB_RUN_ID .
       - name: login
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       - name: push

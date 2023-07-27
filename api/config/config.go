@@ -1,9 +1,9 @@
 package config
 
 import (
-	"fmt"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
+	"github.com/rs/zerolog/log"
 )
 
 // HTTPAPI is the configuration for the API
@@ -39,7 +39,7 @@ type FeatureFlags struct {
 // Load loads the configuration from the environment
 func Load() (*HTTPAPI, error) {
 	if err := godotenv.Load(); err != nil {
-		fmt.Println("Error loading .env file")
+		log.Debug().Msg("Error loading .env file")
 	}
 
 	var cfg HTTPAPI
@@ -53,7 +53,7 @@ func Load() (*HTTPAPI, error) {
 // LoadFeatureFlags loads the feature flags from the environment
 func LoadFeatureFlags() (*FeatureFlags, error) {
 	if err := godotenv.Load(); err != nil {
-		fmt.Println("Error loading .env file")
+		log.Debug().Msg("Error loading .env file")
 	}
 
 	var cfg FeatureFlags

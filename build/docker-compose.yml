@@ -6,6 +6,8 @@ services:
     build:
       context: ../.
       dockerfile: ./build/Dockerfile
+      args:
+        - VERSION=dev
     environment:
       ASANA_API_KEY: ""
       GITLAB_API_KEY: ""

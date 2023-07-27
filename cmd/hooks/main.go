@@ -19,7 +19,12 @@ import (
 	"time"
 )
 
+var (
+	Version = "1.0.0"
+)
+
 // PingExample godoc
+//
 //	@Tags		example
 //	@Success	200	{string}	string	"pong"
 //	@Router		/api/v1/ping [get]
@@ -40,6 +45,8 @@ func ping(c *gin.Context) {
 //	@schemes		http https
 //	@BasePath		/api/v1
 func main() {
+	setupLogger()
+
 	r := gin.New()
 	r.Use(gin.Recovery())
 	r.Use(api.LoggerMiddleware(&log.Logger))
@@ -55,14 +62,13 @@ func main() {
 		log.Fatal().Err(err).Msg("Failed to load feature flags")
 	}
 
-	setupLogger()
 	setupAPIV1(r, cfg, featureFlags)
-
 	if featureFlags.IsRepresentSecretsEnabled {
 		blurSecrets(&log.Logger)
 	}
 
 	addr := fmt.Sprintf(":%s", cfg.Port)
+	log.Info().Msgf("Starting server on %s with version %s", addr, Version)
 	if err = r.Run(addr); err != nil {
 		log.Fatal().Err(err).Msg("Failed to start server")
 	}
