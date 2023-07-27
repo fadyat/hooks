@@ -122,8 +122,7 @@ definitions:
           merge_error: {}
           merge_params:
             properties:
-              force_remove_source_branch:
-                type: string
+              force_remove_source_branch: {}
             type: object
           merge_status:
             type: string

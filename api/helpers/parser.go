@@ -6,13 +6,17 @@ import (
 	"strings"
 )
 
-func getSupportedSeparators() []string {
-	return []string{"\\|", ":", "=", "-", "_"}
-}
+// Expected format: <task-manager><separator><task-id>
+var (
+	// taskManagerIdentifiers are available task managers, that can be used to identify a task mention
+	taskManagerIdentifiers = []string{"asana", "ref"}
 
-func getUniqueMark() []string {
-	return []string{"asana", "ref"}
-}
+	// taskManagerSeparators are available elements that can be used to separate <task-manager> and <task-id>
+	taskManagerSeparators = []string{"\\|", ":", "=", "-", "_"}
+
+	// taskIdentifiers are available regex that can be used to identify a <task-id>
+	taskIdentifiers = []string{`\d+`}
+)
 
 func buildAnyOfRegex(groups ...[]string) string {
 	sb := strings.Builder{}
@@ -26,36 +30,23 @@ func buildAnyOfRegex(groups ...[]string) string {
 }
 
 // ParseTaskMentions parses all the task mentions in a text
-//
-// Expected format: <task-manager><separator><task-id>
-func ParseTaskMentions(txt string) []entities.TaskMention {
-	pattern := buildAnyOfRegex(
-		getUniqueMark(),
-		getSupportedSeparators(),
-		[]string{`\d+`},
-	)
-
-	mentions := make([]entities.TaskMention, 0)
+func ParseTaskMentions(txt string) []*entities.TaskMention {
+	pattern := buildAnyOfRegex(taskManagerIdentifiers, taskManagerSeparators, taskIdentifiers)
+	mentions := make([]*entities.TaskMention, 0)
 	for _, m := range regexp.MustCompile(pattern).FindAllStringSubmatch(txt, -1) {
 		if len(m) != 4 {
 			continue
 		}
 
-		mentions = append(mentions, entities.TaskMention{ID: m[3]})
+		mentions = append(mentions, &entities.TaskMention{ID: m[3]})
 	}
 
 	return mentions
 }
 
 // RemoveTaskMentions removes all the task mentions from a text
-//
-// Expected format: <task-manager><separator><task-id>
 func RemoveTaskMentions(txt string) string {
-	pattern := buildAnyOfRegex(
-		getUniqueMark(),
-		getSupportedSeparators(),
-		[]string{`\d+`},
-	)
+	pattern := buildAnyOfRegex(taskManagerIdentifiers, taskManagerSeparators, taskIdentifiers)
 
 	replaced := regexp.MustCompile(pattern).ReplaceAllString(txt, "")
 	spaces := regexp.MustCompile(`\s+`).ReplaceAllString(replaced, " ")

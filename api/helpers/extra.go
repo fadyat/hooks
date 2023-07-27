@@ -1,7 +1,6 @@
 package helpers
 
 import (
-	"bitbucket.org/mikehouston/asana-go"
 	"errors"
 	"fmt"
 	"github.com/fadyat/hooks/api"
@@ -9,6 +8,9 @@ import (
 	"strings"
 )
 
+// GetBranchNameFromRef returns the branch name from the ref
+//
+// Example: refs/heads/feature-123 -> feature-123
 func GetBranchNameFromRef(ref string) string {
 	return strings.TrimPrefix(ref, "refs/heads/")
 }
@@ -27,7 +29,10 @@ func isCustomMergeCommit(message string) bool {
 	return strings.Contains(message, "is merged into")
 }
 
-func ConfigureMessageForTaskManager(msg entities.Message) (string, error) {
+// ConfigureMessage configures the message for the comment
+//
+// If the message is a merge commit, returns an error
+func ConfigureMessage(msg entities.Message) (string, error) {
 	if isCustomMergeCommit(msg.Text) {
 		return fmt.Sprintf("%s\n\n%s", msg.URL, msg.Text), nil
 	}
@@ -37,41 +42,4 @@ func ConfigureMessageForTaskManager(msg entities.Message) (string, error) {
 	}
 
 	return fmt.Sprintf("%s\n\n%s", msg.URL, RemoveTaskMentions(msg.Text)), nil
-}
-
-func WrapError(err1, err2 error) error {
-	// todo: update golang to 1.20 and use errors.Join
-	if err1 == nil {
-		return err2
-	}
-
-	if err2 == nil {
-		return err1
-	}
-
-	return fmt.Errorf("%w; %s", err1, err2)
-}
-
-func FindCustomFieldByName(fields []*asana.CustomFieldValue, name string) *asana.CustomFieldValue {
-	for _, f := range fields {
-		if f.Name == name {
-			return f
-		}
-	}
-
-	return nil
-}
-
-func RemoveDuplicatesTaskMentions(mentions []entities.TaskMention) []entities.TaskMention {
-	keys := make(map[entities.TaskMention]bool)
-	list := make([]entities.TaskMention, 0, len(mentions))
-
-	for _, entry := range mentions {
-		if _, value := keys[entry]; !value {
-			keys[entry] = true
-			list = append(list, entry)
-		}
-	}
-
-	return list
 }

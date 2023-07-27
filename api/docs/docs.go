@@ -397,9 +397,7 @@ const docTemplate = `{
                         "merge_params": {
                             "type": "object",
                             "properties": {
-                                "force_remove_source_branch": {
-                                    "type": "string"
-                                }
+                                "force_remove_source_branch": {}
                             }
                         },
                         "merge_status": {
