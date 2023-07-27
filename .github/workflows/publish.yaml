@@ -12,7 +12,7 @@ on:
 
 env:
   IMAGE_NAME: 'hooks'
-  GO_VERSION: 1.20
+  GO_VERSION: '1.20'
 
 jobs:
   publish:
