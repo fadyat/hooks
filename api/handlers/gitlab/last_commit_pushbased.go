@@ -32,6 +32,7 @@ func NewHandler(cfg *config.HTTPAPI, l *zerolog.Logger, t tm.ITaskManager, v vcs
 }
 
 // UpdateLastCommitInfo updates the last commit info of a task
+//
 //	@Description	Update last commit info, in custom field or creating a comment
 //	@Accept			json
 //	@Param			X-Gitlab-Event	header		string					true	"Gitlab event"

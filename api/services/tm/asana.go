@@ -33,13 +33,16 @@ func NewAsanaService(
 	}
 }
 
-func (a *AsanaService) UpdateCustomField(mention entities.TaskMention, customFieldName, value string) error {
+func (a *AsanaService) UpdateCustomField(mention *entities.TaskMention, customFieldName, value string) error {
 	t := asana.Task{ID: mention.ID}
 	if err := t.Fetch(a.c); err != nil {
 		return err
 	}
 
-	cf := helpers.FindCustomFieldByName(t.CustomFields, customFieldName)
+	cf := helpers.Find[asana.CustomFieldValue](t.CustomFields, func(cf *asana.CustomFieldValue) bool {
+		return cf.Name == customFieldName
+	})
+
 	if cf == nil {
 		return errors.New(api.CustomFieldNotFound)
 	}
@@ -55,7 +58,7 @@ func (a *AsanaService) UpdateCustomField(mention entities.TaskMention, customFie
 	return err
 }
 
-func (a *AsanaService) CreateComment(mention entities.TaskMention, value string) error {
+func (a *AsanaService) CreateComment(mention *entities.TaskMention, value string) error {
 	t := asana.Task{ID: mention.ID}
 	_, err := t.CreateComment(a.c, &asana.StoryBase{
 		Text: value,
@@ -69,7 +72,7 @@ func (a *AsanaService) CreateComment(mention entities.TaskMention, value string)
 }
 
 func (a *AsanaService) UpdateLastCommitInfo(branchName string, msg entities.Message) error {
-	message, e := helpers.ConfigureMessageForTaskManager(msg)
+	message, e := helpers.ConfigureMessage(msg)
 	if e != nil {
 		return e
 	}
@@ -79,7 +82,7 @@ func (a *AsanaService) UpdateLastCommitInfo(branchName string, msg entities.Mess
 		mentions = append(mentions, helpers.ParseTaskMentions(msg.Text)...)
 	}
 
-	mentions = helpers.RemoveDuplicatesTaskMentions(mentions)
+	mentions = helpers.RemoveDuplicates(mentions)
 	if len(mentions) == 0 {
 		a.l.Debug().Msgf("no task mentions found in branch name %s or commit message %s", branchName, msg.Text)
 		return errors.New(api.NoTaskMentionsFound)
@@ -95,18 +98,18 @@ func (a *AsanaService) UpdateLastCommitInfo(branchName string, msg entities.Mess
 		a.l.Debug().Err(err).Msgf("failed to update custom field %s for task %s", a.cfg.LastCommitFieldName, m)
 		if err = a.CreateComment(m, message); err != nil {
 			a.l.Debug().Err(err).Msgf("failed to create comment for task %s", m)
-			wrappedError = helpers.WrapError(wrappedError, err)
+			wrappedError = errors.Join(wrappedError, err)
 		}
 	}
 
 	return wrappedError
 }
 
-func (a *AsanaService) GetTaskShortLink(mention entities.TaskMention) (string, error) {
-	return fmt.Sprintf("https://app.asana.com/0/0/%s", mention.ID), nil
+func (a *AsanaService) GetTaskShortLink(mention *entities.TaskMention) (string, error) {
+	return fmt.Sprintf("https://app.asana.com/0/0/%s/f", mention.ID), nil
 }
 
-func (a *AsanaService) GetTaskName(mention entities.TaskMention) (string, error) {
+func (a *AsanaService) GetTaskName(mention *entities.TaskMention) (string, error) {
 	t := asana.Task{ID: mention.ID}
 	if err := t.Fetch(a.c); err != nil {
 		return "", err

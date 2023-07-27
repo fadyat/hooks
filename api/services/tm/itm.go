@@ -10,10 +10,10 @@ import (
 type ITaskManager interface {
 
 	// UpdateCustomField updates the custom field of a task
-	UpdateCustomField(mention entities.TaskMention, customFieldName string, value string) error
+	UpdateCustomField(mention *entities.TaskMention, customFieldName string, value string) error
 
 	// CreateComment creates a comment on a task
-	CreateComment(mention entities.TaskMention, value string) error
+	CreateComment(mention *entities.TaskMention, value string) error
 
 	// UpdateLastCommitInfo updates the last commit info of a task
 	UpdateLastCommitInfo(branchName string, msg entities.Message) error
@@ -22,8 +22,8 @@ type ITaskManager interface {
 	//
 	// todo: can be united with GetTaskName if update the api of the golang asana client
 	// now doesn't use the asana client, creates only with the task_id
-	GetTaskShortLink(mention entities.TaskMention) (string, error)
+	GetTaskShortLink(mention *entities.TaskMention) (string, error)
 
 	// GetTaskName returns the name of a task
-	GetTaskName(mention entities.TaskMention) (string, error)
+	GetTaskName(mention *entities.TaskMention) (string, error)
 }
