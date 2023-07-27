@@ -29,7 +29,6 @@ services:
       GITLAB_API_KEY: ""
       GITLAB_DOMAIN: "https://gitlab.com"
       GITLAB_SECRET_TOKENS: "dev"
-      GIN_MODE: "debug"
       IS_COMMIT_MENTIONS_ENABLED: "true"
       IS_REPRESENT_SECRETS_ENABLED: "true"
     ports:
