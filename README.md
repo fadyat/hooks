@@ -1,4 +1,26 @@
-## Hooks between services
+## Hooks
+
+This project is dedicated to boosting your development workflow by seamlessly integrating GitLab with Asana.
+
+Say goodbye to manual task tracking and commit updates – this tool automates it all!
+
+### Distinguishing Features
+
+- Focused Task Management
+  > Our integration is all about making Asana task management incredibly smooth.
+  > 
+  > It's designed to effortlessly connect Git commits with Asana tasks.
+
+- Track History
+  > Keep tabs on all commits and merges, providing a clear history of task-related changes.
+
+- Connect Multiple Tasks
+  > Link multiple tasks to a single commit or merge request, ensuring comprehensive tracking.
+
+- Customization
+  > Tailor commit messages and merge request descriptions to suit your needs.
+
+Ready to supercharge your workflow? Explore our integration today!
 
 ### Workflow
 
