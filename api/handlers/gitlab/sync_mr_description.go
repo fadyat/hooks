@@ -40,7 +40,7 @@ func (h *Handler) SyncMRDescriptionWithAsanaTasks(c *gin.Context) {
 
 	var r gitlab.MergeRequestHook
 	if err := c.ShouldBindJSON(&r); err != nil {
-		h.l.Debug().Err(err).Msg("invalid request body")
+		h.l.Error().Err(err).Msg("invalid request body")
 		c.JSON(http.StatusBadRequest, api.Response{
 			Ok:    false,
 			Error: "invalid request body",
@@ -49,7 +49,7 @@ func (h *Handler) SyncMRDescriptionWithAsanaTasks(c *gin.Context) {
 	}
 
 	if r.ObjectAttributes.Action != gitlab.MergeRequestActionOpen {
-		h.l.Debug().Msgf("unsupported action: %s", r.ObjectAttributes.Action)
+		h.l.Info().Msgf("unsupported action: %s", r.ObjectAttributes.Action)
 
 		// returning 200 to avoid gitlab retrying the request
 		c.JSON(http.StatusOK, api.Response{
@@ -62,6 +62,7 @@ func (h *Handler) SyncMRDescriptionWithAsanaTasks(c *gin.Context) {
 	attr := r.ObjectAttributes
 	err := h.vcs.UpdatePRDescription(r.Project.ID, attr.Iid, attr.SourceBranch, attr.Description)
 	if err != nil {
+		h.l.Error().Err(err).Msg("failed to update PR description")
 		c.JSON(http.StatusInternalServerError, api.Response{
 			Ok:    false,
 			Error: err.Error(),

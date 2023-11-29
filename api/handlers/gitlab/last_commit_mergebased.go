@@ -11,6 +11,7 @@ import (
 )
 
 // OnBranchMerge handles the merge event and updates the last commit info
+//
 //	@Description	Update last commit info, based on merge event of MR
 //	@Accept			json
 //	@Param			X-Gitlab-Event	header		string					true	"Gitlab event"
@@ -40,7 +41,7 @@ func (h *Handler) OnBranchMerge(c *gin.Context) {
 
 	var r gitlab.MergeRequestHook
 	if err := c.ShouldBindJSON(&r); err != nil {
-		h.l.Debug().Err(err).Msg("invalid request body")
+		h.l.Error().Err(err).Msg("invalid request body")
 		c.JSON(http.StatusBadRequest, api.Response{
 			Ok:    false,
 			Error: "invalid request body",
@@ -49,7 +50,7 @@ func (h *Handler) OnBranchMerge(c *gin.Context) {
 	}
 
 	if r.ObjectAttributes.Action != gitlab.MergeRequestActionMerge {
-		h.l.Debug().Msgf("unsupported action: %s", r.ObjectAttributes.Action)
+		h.l.Info().Msgf("unsupported action: %s", r.ObjectAttributes.Action)
 
 		// returning 200 to avoid gitlab retrying the request
 		c.JSON(http.StatusOK, api.Response{
@@ -60,21 +61,20 @@ func (h *Handler) OnBranchMerge(c *gin.Context) {
 	}
 
 	attr := r.ObjectAttributes
-	err := h.tm.UpdateLastCommitInfo(attr.SourceBranch, entities.Message{
+	if err := h.tm.UpdateLastCommitInfo(attr.SourceBranch, entities.Message{
 		Text: fmt.Sprintf("'%s' is merged into '%s'", attr.SourceBranch, attr.TargetBranch),
 		URL:  attr.URL,
-	})
-
-	if err == nil {
-		c.JSON(http.StatusOK, api.Response{
+	}); err != nil {
+		h.l.Error().Err(err).Msg("failed to update last commit info")
+		c.JSON(api.GetErrStatusCode(err), api.Response{
 			Ok:     true,
-			Result: "updated",
+			Result: "task mentioned in the description",
 		})
 		return
 	}
 
-	c.JSON(api.GetErrStatusCode(err), api.Response{
+	c.JSON(http.StatusOK, api.Response{
 		Ok:     true,
-		Result: "task mentioned in the description",
+		Result: "updated",
 	})
 }

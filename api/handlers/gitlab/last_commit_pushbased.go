@@ -62,7 +62,7 @@ func (h *Handler) UpdateLastCommitInfo(c *gin.Context) {
 
 	var r gitlab.PushRequestHook
 	if err := c.ShouldBindJSON(&r); err != nil {
-		h.l.Debug().Err(err).Msg("invalid request body")
+		h.l.Error().Err(err).Msg("invalid request body")
 		c.JSON(http.StatusBadRequest, api.Response{
 			Ok:    false,
 			Error: "invalid request body",
@@ -71,6 +71,7 @@ func (h *Handler) UpdateLastCommitInfo(c *gin.Context) {
 	}
 
 	if len(r.Commits) == 0 {
+		h.l.Info().Msg("no commits found")
 		c.JSON(http.StatusOK, api.Response{
 			Ok:    true,
 			Error: "no commits found",
@@ -83,21 +84,20 @@ func (h *Handler) UpdateLastCommitInfo(c *gin.Context) {
 	})
 
 	lastCommit := r.Commits[0]
-	err := h.tm.UpdateLastCommitInfo(helpers.GetBranchNameFromRef(r.Ref), entities.Message{
+	if err := h.tm.UpdateLastCommitInfo(helpers.GetBranchNameFromRef(r.Ref), entities.Message{
 		Text: lastCommit.Message,
 		URL:  lastCommit.URL,
-	})
-
-	if err == nil {
-		c.JSON(http.StatusOK, api.Response{
-			Ok:     true,
-			Result: "updated",
+	}); err != nil {
+		h.l.Error().Err(err).Msg("failed to update last commit info")
+		c.JSON(api.GetErrStatusCode(err), api.Response{
+			Ok:    false,
+			Error: err.Error(),
 		})
 		return
 	}
 
-	c.JSON(api.GetErrStatusCode(err), api.Response{
-		Ok:    false,
-		Error: err.Error(),
+	c.JSON(http.StatusOK, api.Response{
+		Ok:     true,
+		Result: "updated",
 	})
 }
