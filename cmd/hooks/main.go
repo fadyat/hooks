@@ -34,16 +34,16 @@ func ping(c *gin.Context) {
 	})
 }
 
-//	@title			Hooks API
-//	@version		1.0.0
-//	@description	This is a sample server Hooks API.
-//	@termsOfService	https://swagger.io/terms/
-//	@contact.name	Fadeyev Artyom
-//	@contact.url	https://github.com/fadyat
-//	@license.name	MIT
-//	@license.url	https://github.com/MartinHeinz/go-project-blueprint/blob/master/LICENSE
-//	@schemes		http https
-//	@BasePath		/api/v1
+// @title			Hooks API
+// @version		1.0.0
+// @description	This is a sample server Hooks API.
+// @termsOfService	https://swagger.io/terms/
+// @contact.name	Fadeyev Artyom
+// @contact.url	https://github.com/fadyat
+// @license.name	MIT
+// @license.url	https://github.com/MartinHeinz/go-project-blueprint/blob/master/LICENSE
+// @schemes		http https
+// @BasePath		/api/v1
 func main() {
 	setupLogger()
 
@@ -92,14 +92,6 @@ func setupAPIV1(r *gin.Engine, cfg *config.HTTPAPI, featureFlags *config.Feature
 
 	toGitlab := v1.Group("/gitlab")
 	toGitlab.POST("/sync_description", gh.SyncMRDescriptionWithAsanaTasks)
-}
-
-func min(a, b int) int {
-	if a > b {
-		return b
-	}
-
-	return a
 }
 
 func blurSecrets(lg *zerolog.Logger) {
