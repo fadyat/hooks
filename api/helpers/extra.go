@@ -31,15 +31,24 @@ func isCustomMergeCommit(message string) bool {
 
 // ConfigureMessage configures the message for the comment
 //
-// If the message is a merge commit, returns an error
-func ConfigureMessage(msg entities.Message) (string, error) {
+// If the message is a merge commit, returns an error, because merge commits
+// are handled by the different webhook.
+// Done to avoid duplicate comments on push and merge hooks.
+func ConfigureMessage(msg entities.Message) (s string, err error) {
+	// todo: add the author of the commit to the end
+	//  of the message
+	// todo: can provide feature flags to add the author
+	//  of the commit to the end of the message
+
 	if isCustomMergeCommit(msg.Text) {
 		return fmt.Sprintf("%s\n\n%s", msg.URL, msg.Text), nil
 	}
 
+	// todo: can be removed if only the push hook is used
+	//  or when custom fields are updated only, without creating comments
 	if isMergeCommit(msg.Text) {
 		return "", errors.New(api.MergeCommitUnsupported)
 	}
 
-	return fmt.Sprintf("%s\n\n%s", msg.URL, RemoveTaskMentions(msg.Text)), nil
+	return fmt.Sprintf("%s\n\n%s", msg.URL, removeTaskMentions(msg.Text)), nil
 }

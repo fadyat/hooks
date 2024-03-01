@@ -10,9 +10,10 @@ import (
 	"net/http"
 )
 
-// OnBranchMerge handles the merge event and updates the last commit info
+// OnMergeRequestActions handles the merge request actions and sends the comment to the task
+// based on the action.
 //
-//	@Description	Update last commit info, based on merge event of MR
+//	@Description	Creates a comment for the merge request actions.
 //	@Accept			json
 //	@Param			X-Gitlab-Event	header		string					true	"Gitlab event"
 //	@Param			X-Gitlab-Token	header		string					true	"Gitlab token"
@@ -22,7 +23,7 @@ import (
 //	@Failure		401				{object}	api.Response
 //	@Failure		500				{object}	api.Response
 //	@Router			/api/v1/asana/merge [post]
-func (h *Handler) OnBranchMerge(c *gin.Context) {
+func (h *Handler) OnMergeRequestActions(c *gin.Context) {
 	if c.Request.Header.Get("X-Gitlab-Event") != gitlab.MergeEvent {
 		c.JSON(http.StatusBadRequest, api.Response{
 			Ok:    false,
@@ -49,21 +50,24 @@ func (h *Handler) OnBranchMerge(c *gin.Context) {
 		return
 	}
 
-	if r.ObjectAttributes.Action != gitlab.MergeRequestActionMerge {
+	text := getText(&r)
+	if text == UnsupportedMergeRequestAction {
 		h.l.Info().Msgf("unsupported action: %s", r.ObjectAttributes.Action)
 
 		// returning 200 to avoid gitlab retrying the request
 		c.JSON(http.StatusOK, api.Response{
 			Ok:    false,
-			Error: "unsupported action, only merge is supported",
+			Error: fmt.Sprintf("unsupported action: %s", r.ObjectAttributes.Action),
 		})
 		return
 	}
 
 	attr := r.ObjectAttributes
-	if err := h.tm.UpdateLastCommitInfo(attr.SourceBranch, entities.Message{
-		Text: fmt.Sprintf("'%s' is merged into '%s'", attr.SourceBranch, attr.TargetBranch),
-		URL:  attr.URL,
+	if err := h.tm.CreateComment(entities.Message{
+		Text:       text,
+		URL:        attr.URL,
+		Author:     r.User.Username,
+		BranchName: attr.SourceBranch,
 	}); err != nil {
 		h.l.Error().Err(err).Msg("failed to update last commit info")
 		c.JSON(api.GetErrStatusCode(err), api.Response{
@@ -78,3 +82,26 @@ func (h *Handler) OnBranchMerge(c *gin.Context) {
 		Result: "updated",
 	})
 }
+
+func getText(r *gitlab.MergeRequestHook) string {
+	switch r.ObjectAttributes.Action {
+	case gitlab.MergeRequestActionMerge:
+		return fmt.Sprintf("%q is merged into %q", r.ObjectAttributes.SourceBranch, r.ObjectAttributes.TargetBranch)
+	case gitlab.MergeRequestActionOpen:
+		return fmt.Sprintf("Created merge request to merge %q into %q", r.ObjectAttributes.SourceBranch, r.ObjectAttributes.TargetBranch)
+	case gitlab.MergeRequestActionReopen:
+		return "The merge request has been reopened."
+	case gitlab.MergeRequestActionClose:
+		return "The merge request has been closed."
+	case gitlab.MergeRequestActionApproved:
+		return "The merge request has been approved."
+	case gitlab.MergeRequestActionUnapproved:
+		return "Changes have been requested in the merge request."
+	}
+
+	return UnsupportedMergeRequestAction
+}
+
+const (
+	UnsupportedMergeRequestAction = "unsupported merge request action"
+)

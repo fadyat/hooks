@@ -84,9 +84,11 @@ func (h *Handler) UpdateLastCommitInfo(c *gin.Context) {
 	})
 
 	lastCommit := r.Commits[0]
-	if err := h.tm.UpdateLastCommitInfo(helpers.GetBranchNameFromRef(r.Ref), entities.Message{
-		Text: lastCommit.Message,
-		URL:  lastCommit.URL,
+	if err := h.tm.UpdateLastCommitInfo(entities.Message{
+		Text:       lastCommit.Message,
+		URL:        lastCommit.URL,
+		Author:     lastCommit.Author.Name,
+		BranchName: helpers.GetBranchNameFromRef(r.Ref),
 	}); err != nil {
 		h.l.Error().Err(err).Msg("failed to update last commit info")
 		c.JSON(api.GetErrStatusCode(err), api.Response{

@@ -12,10 +12,11 @@ import (
 )
 
 type AsanaService struct {
-	c            *asana.Client
-	l            *zerolog.Logger
-	cfg          *config.HTTPAPI
-	featureFlags *config.FeatureFlags
+	c             *asana.Client
+	l             *zerolog.Logger
+	cfg           *config.HTTPAPI
+	featureFlags  *config.FeatureFlags
+	messageParser *helpers.MessageParser
 }
 
 // NewAsanaService creates a new instance of the Asana service
@@ -26,10 +27,11 @@ func NewAsanaService(
 	ff *config.FeatureFlags,
 ) *AsanaService {
 	return &AsanaService{
-		l:            l,
-		cfg:          cfg,
-		c:            asana.NewClientWithAccessToken(apiKey),
-		featureFlags: ff,
+		l:             l,
+		cfg:           cfg,
+		c:             asana.NewClientWithAccessToken(apiKey),
+		featureFlags:  ff,
+		messageParser: helpers.NewMessageParser(ff),
 	}
 }
 
@@ -58,7 +60,7 @@ func (a *AsanaService) UpdateCustomField(mention *entities.TaskMention, customFi
 	return err
 }
 
-func (a *AsanaService) CreateComment(mention *entities.TaskMention, value string) error {
+func (a *AsanaService) createComment(mention *entities.TaskMention, value string) error {
 	t := asana.Task{ID: mention.ID}
 	_, err := t.CreateComment(a.c, &asana.StoryBase{
 		Text: value,
@@ -71,21 +73,27 @@ func (a *AsanaService) CreateComment(mention *entities.TaskMention, value string
 	return err
 }
 
-func (a *AsanaService) UpdateLastCommitInfo(branchName string, msg entities.Message) error {
-	message, e := helpers.ConfigureMessage(msg)
+func (a *AsanaService) CreateComment(msg entities.Message) error {
+	message, mentions, e := a.messageParser.GetTaskMentions(msg)
 	if e != nil {
 		return e
 	}
 
-	mentions := helpers.ParseTaskMentions(branchName)
-	if a.featureFlags.IsCommitMentionsEnabled {
-		mentions = append(mentions, helpers.ParseTaskMentions(msg.Text)...)
+	var wrappedError error
+	for _, m := range mentions {
+		if err := a.createComment(m, message); err != nil {
+			a.l.Debug().Err(err).Msgf("failed to create comment for task %s", m)
+			wrappedError = errors.Join(wrappedError, err)
+		}
 	}
 
-	mentions = helpers.RemoveDuplicates(mentions)
-	if len(mentions) == 0 {
-		a.l.Debug().Msgf("no task mentions found in branch name %s or commit message %s", branchName, msg.Text)
-		return errors.New(api.NoTaskMentionsFound)
+	return wrappedError
+}
+
+func (a *AsanaService) UpdateLastCommitInfo(msg entities.Message) error {
+	message, mentions, e := a.messageParser.GetTaskMentions(msg)
+	if e != nil {
+		return e
 	}
 
 	var wrappedError error
@@ -96,7 +104,7 @@ func (a *AsanaService) UpdateLastCommitInfo(branchName string, msg entities.Mess
 		}
 
 		a.l.Debug().Err(err).Msgf("failed to update custom field %s for task %s", a.cfg.LastCommitFieldName, m)
-		if err = a.CreateComment(m, message); err != nil {
+		if err = a.createComment(m, message); err != nil {
 			a.l.Debug().Err(err).Msgf("failed to create comment for task %s", m)
 			wrappedError = errors.Join(wrappedError, err)
 		}
