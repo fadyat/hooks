@@ -50,7 +50,7 @@ func (h *Handler) OnMergeRequestActions(c *gin.Context) {
 		return
 	}
 
-	text := getText(&r)
+	text := getMergeRequestCommentText(&r)
 	if text == UnsupportedMergeRequestAction {
 		h.l.Info().Msgf("unsupported action: %s", r.ObjectAttributes.Action)
 
@@ -68,6 +68,7 @@ func (h *Handler) OnMergeRequestActions(c *gin.Context) {
 		URL:        attr.URL,
 		Author:     r.User.Username,
 		BranchName: attr.SourceBranch,
+		NotClean:   true,
 	}); err != nil {
 		h.l.Error().Err(err).Msg("failed to update last commit info")
 		c.JSON(api.GetErrStatusCode(err), api.Response{
@@ -83,12 +84,20 @@ func (h *Handler) OnMergeRequestActions(c *gin.Context) {
 	})
 }
 
-func getText(r *gitlab.MergeRequestHook) string {
+func getMergeRequestCommentText(r *gitlab.MergeRequestHook) string {
 	switch r.ObjectAttributes.Action {
 	case gitlab.MergeRequestActionMerge:
-		return fmt.Sprintf("%q is merged into %q", r.ObjectAttributes.SourceBranch, r.ObjectAttributes.TargetBranch)
+		return fmt.Sprintf(
+			"Branch %q is merged into %q",
+			r.ObjectAttributes.SourceBranch,
+			r.ObjectAttributes.TargetBranch,
+		)
 	case gitlab.MergeRequestActionOpen:
-		return fmt.Sprintf("Created merge request to merge %q into %q", r.ObjectAttributes.SourceBranch, r.ObjectAttributes.TargetBranch)
+		return fmt.Sprintf(
+			"Created merge request to merge %q into %q",
+			r.ObjectAttributes.SourceBranch,
+			r.ObjectAttributes.TargetBranch,
+		)
 	case gitlab.MergeRequestActionReopen:
 		return "The merge request has been reopened."
 	case gitlab.MergeRequestActionClose:

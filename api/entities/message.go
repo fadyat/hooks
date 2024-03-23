@@ -13,4 +13,6 @@ type Message struct {
 
 	// BranchName is the branch name of the message
 	BranchName string `json:"branch_name"`
+
+	NotClean bool `json:"not_clean"`
 }
