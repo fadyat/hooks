@@ -42,11 +42,19 @@ definitions:
   gitlab.MergeRequestAction:
     enum:
     - open
+    - reopen
     - merge
+    - close
+    - approved
+    - unapproved
     type: string
     x-enum-varnames:
     - MergeRequestActionOpen
+    - MergeRequestActionReopen
     - MergeRequestActionMerge
+    - MergeRequestActionClose
+    - MergeRequestActionApproved
+    - MergeRequestActionUnapproved
   gitlab.MergeRequestHook:
     properties:
       changes:
@@ -375,16 +383,16 @@ info:
   description: This is a sample server Hooks API.
   license:
     name: MIT
-    url: https://github.com/MartinHeinz/go-project-blueprint/blob/master/LICENSE
+    url: https://github.com/fadyat/hooks/blob/master/LICENSE
   termsOfService: https://swagger.io/terms/
   title: Hooks API
-  version: 1.0.0
+  version: 0.1.0
 paths:
   /api/v1/asana/merge:
     post:
       consumes:
       - application/json
-      description: Update last commit info, based on merge event of MR
+      description: Creates a comment for the merge request actions.
       parameters:
       - description: Gitlab event
         in: header
