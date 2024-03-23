@@ -14,15 +14,15 @@
         },
         "license": {
             "name": "MIT",
-            "url": "https://github.com/MartinHeinz/go-project-blueprint/blob/master/LICENSE"
+            "url": "https://github.com/fadyat/hooks/blob/master/LICENSE"
         },
-        "version": "1.0.0"
+        "version": "0.1.0"
     },
     "basePath": "/api/v1",
     "paths": {
         "/api/v1/asana/merge": {
             "post": {
-                "description": "Update last commit info, based on merge event of MR",
+                "description": "Creates a comment for the merge request actions.",
                 "consumes": [
                     "application/json"
                 ],
@@ -277,11 +277,19 @@
             "type": "string",
             "enum": [
                 "open",
-                "merge"
+                "reopen",
+                "merge",
+                "close",
+                "approved",
+                "unapproved"
             ],
             "x-enum-varnames": [
                 "MergeRequestActionOpen",
-                "MergeRequestActionMerge"
+                "MergeRequestActionReopen",
+                "MergeRequestActionMerge",
+                "MergeRequestActionClose",
+                "MergeRequestActionApproved",
+                "MergeRequestActionUnapproved"
             ]
         },
         "gitlab.MergeRequestHook": {

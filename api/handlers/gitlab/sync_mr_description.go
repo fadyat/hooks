@@ -60,8 +60,7 @@ func (h *Handler) SyncMRDescriptionWithAsanaTasks(c *gin.Context) {
 	}
 
 	attr := r.ObjectAttributes
-	err := h.vcs.UpdatePRDescription(r.Project.ID, attr.Iid, attr.SourceBranch, attr.Description)
-	if err != nil {
+	if err := h.vcs.UpdatePRDescription(r.Project.ID, attr.Iid, attr.SourceBranch, attr.Description); err != nil {
 		h.l.Error().Err(err).Msg("failed to update PR description")
 		c.JSON(http.StatusInternalServerError, api.Response{
 			Ok:    false,

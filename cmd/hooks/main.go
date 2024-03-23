@@ -35,13 +35,13 @@ func ping(c *gin.Context) {
 }
 
 // @title			Hooks API
-// @version		1.0.0
+// @version		0.1.0
 // @description	This is a sample server Hooks API.
 // @termsOfService	https://swagger.io/terms/
 // @contact.name	Fadeyev Artyom
 // @contact.url	https://github.com/fadyat
 // @license.name	MIT
-// @license.url	https://github.com/MartinHeinz/go-project-blueprint/blob/master/LICENSE
+// @license.url	https://github.com/fadyat/hooks/blob/master/LICENSE
 // @schemes		http https
 // @BasePath		/api/v1
 func main() {
@@ -88,7 +88,7 @@ func setupAPIV1(r *gin.Engine, cfg *config.HTTPAPI, featureFlags *config.Feature
 
 	toAsana := v1.Group("/asana")
 	toAsana.POST("/push", gh.UpdateLastCommitInfo)
-	toAsana.POST("/merge", gh.OnBranchMerge)
+	toAsana.POST("/merge", gh.OnMergeRequestActions)
 
 	toGitlab := v1.Group("/gitlab")
 	toGitlab.POST("/sync_description", gh.SyncMRDescriptionWithAsanaTasks)

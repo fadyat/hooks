@@ -31,8 +31,16 @@ func isCustomMergeCommit(message string) bool {
 
 // ConfigureMessage configures the message for the comment
 //
-// If the message is a merge commit, returns an error
-func ConfigureMessage(msg entities.Message) (string, error) {
+// If the message is a merge commit, returns an error, because merge commits
+// are handled by the different webhook.
+// Done to avoid duplicate comments on push and merge hooks.
+func ConfigureMessage(msg entities.Message) (s string, err error) {
+	defer func() {
+		if err == nil {
+			s += fmt.Sprintf("\nBy: %s", msg.Author)
+		}
+	}()
+
 	if isCustomMergeCommit(msg.Text) {
 		return fmt.Sprintf("%s\n\n%s", msg.URL, msg.Text), nil
 	}
@@ -41,5 +49,10 @@ func ConfigureMessage(msg entities.Message) (string, error) {
 		return "", errors.New(api.MergeCommitUnsupported)
 	}
 
-	return fmt.Sprintf("%s\n\n%s", msg.URL, RemoveTaskMentions(msg.Text)), nil
+	text := msg.Text
+	if !msg.NotClean {
+		text = removeTaskMentions(text)
+	}
+
+	return fmt.Sprintf("%s\n\n%s", msg.URL, text), nil
 }

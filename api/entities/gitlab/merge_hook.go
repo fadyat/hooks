@@ -142,6 +142,10 @@ type MergeRequestHook struct {
 type MergeRequestAction string
 
 const (
-	MergeRequestActionOpen  MergeRequestAction = "open"
-	MergeRequestActionMerge MergeRequestAction = "merge"
+	MergeRequestActionOpen       MergeRequestAction = "open"
+	MergeRequestActionReopen     MergeRequestAction = "reopen"
+	MergeRequestActionMerge      MergeRequestAction = "merge"
+	MergeRequestActionClose      MergeRequestAction = "close"
+	MergeRequestActionApproved   MergeRequestAction = "approved"
+	MergeRequestActionUnapproved MergeRequestAction = "unapproved"
 )

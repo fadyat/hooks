@@ -12,11 +12,12 @@ type ITaskManager interface {
 	// UpdateCustomField updates the custom field of a task
 	UpdateCustomField(mention *entities.TaskMention, customFieldName string, value string) error
 
-	// CreateComment creates a comment on a task
-	CreateComment(mention *entities.TaskMention, value string) error
+	// CreateComment creates a comment on all message related tasks
+	CreateComment(msg entities.Message) error
 
 	// UpdateLastCommitInfo updates the last commit info of a task
-	UpdateLastCommitInfo(branchName string, msg entities.Message) error
+	// via custom field or creating a comment
+	UpdateLastCommitInfo(msg entities.Message) error
 
 	// GetTaskShortLink returns the short link of a task
 	//

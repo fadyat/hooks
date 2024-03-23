@@ -48,22 +48,46 @@ func TestConfigureMessage(t *testing.T) {
 		{
 			name: "is custom merge commit",
 			msg: entities.Message{
-				Text: "feature-123 is merged into master",
-				URL:  "https://gitlab.com/fadyat/hooks/commit/123",
+				Text:   "feature-123 is merged into master",
+				URL:    "https://gitlab.com/fadyat/hooks/commit/123",
+				Author: "aboba",
 			},
 			exp: fmt.Sprintf(
-				"%s\n\n%s", "https://gitlab.com/fadyat/hooks/commit/123", "feature-123 is merged into master",
+				"%s\n\n%s\n%s",
+				"https://gitlab.com/fadyat/hooks/commit/123",
+				"feature-123 is merged into master",
+				"By: aboba",
 			),
 			expErr: nil,
 		},
 		{
 			name: "is not custom merge commit",
 			msg: entities.Message{
-				Text: "feat: add new feature",
-				URL:  "https://gitlab.com/fadyat/hooks/commit/123",
+				Text:   "feat: add new feature",
+				URL:    "https://gitlab.com/fadyat/hooks/commit/123",
+				Author: "aboba",
 			},
 			exp: fmt.Sprintf(
-				"%s\n\n%s", "https://gitlab.com/fadyat/hooks/commit/123", "feat: add new feature",
+				"%s\n\n%s\n%s",
+				"https://gitlab.com/fadyat/hooks/commit/123",
+				"feat: add new feature",
+				"By: aboba",
+			),
+		},
+		{
+			name: "not clean task mentions",
+			msg: entities.Message{
+				Text:       "feat: add new feature asana-123",
+				URL:        "https://gitlab.com/fadyat/hooks/commit/123",
+				Author:     "aboba",
+				BranchName: "asana-123",
+				NotClean:   true,
+			},
+			exp: fmt.Sprintf(
+				"%s\n\n%s\n%s",
+				"https://gitlab.com/fadyat/hooks/commit/123",
+				"feat: add new feature asana-123",
+				"By: aboba",
 			),
 		},
 	}

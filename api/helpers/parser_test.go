@@ -59,7 +59,7 @@ func TestRemoveTaskMentions(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			act := RemoveTaskMentions(tt.in)
+			act := removeTaskMentions(tt.in)
 			if !cmp.Equal(tt.exp, act) {
 				t.Errorf("failed on '%s', expected: %v, actual: %v", tt.name, tt.exp, act)
 			}
