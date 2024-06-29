@@ -2,11 +2,12 @@ package helpers
 
 import (
 	"errors"
+	"regexp"
+	"strings"
+
 	"github.com/fadyat/hooks/api"
 	"github.com/fadyat/hooks/api/config"
 	"github.com/fadyat/hooks/api/entities"
-	"regexp"
-	"strings"
 )
 
 // Expected format: <task-manager><separator><task-id>

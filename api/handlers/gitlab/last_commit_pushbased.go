@@ -1,6 +1,10 @@
 package gitlab
 
 import (
+	"net/http"
+	"slices"
+	"sort"
+
 	"github.com/fadyat/hooks/api"
 	"github.com/fadyat/hooks/api/config"
 	"github.com/fadyat/hooks/api/entities"
@@ -10,9 +14,6 @@ import (
 	"github.com/fadyat/hooks/api/services/vcs"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
-	"golang.org/x/exp/slices"
-	"net/http"
-	"sort"
 )
 
 type Handler struct {

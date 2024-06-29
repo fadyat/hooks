@@ -1,11 +1,12 @@
 package gitlab
 
 import (
+	"net/http"
+	"slices"
+
 	"github.com/fadyat/hooks/api"
 	"github.com/fadyat/hooks/api/entities/gitlab"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/exp/slices"
-	"net/http"
 )
 
 // SyncMRDescriptionWithAsanaTasks updates the merge request description with the task info

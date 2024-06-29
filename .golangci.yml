@@ -51,6 +51,7 @@ linters:
     - gosimple
     - prealloc
     - gosec
+    - goimports
 
 issues:
   exclude-rules:

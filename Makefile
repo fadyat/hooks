@@ -4,6 +4,9 @@ swag:
 	@swag init --generalInfo cmd/hooks/main.go --output api/docs
 	@swag fmt
 
+fmt:
+	@golangci-lint run ./... --fix
+
 lint:
 	@golangci-lint run ./...
 

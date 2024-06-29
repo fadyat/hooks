@@ -2,6 +2,11 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/fadyat/hooks/api"
 	"github.com/fadyat/hooks/api/config"
 	_ "github.com/fadyat/hooks/api/docs"
@@ -13,10 +18,6 @@ import (
 	"github.com/rs/zerolog/log"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-	"net/http"
-	"os"
-	"strings"
-	"time"
 )
 
 var (

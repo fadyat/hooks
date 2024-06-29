@@ -2,12 +2,13 @@ package gitlab
 
 import (
 	"fmt"
+	"net/http"
+	"slices"
+
 	"github.com/fadyat/hooks/api"
 	"github.com/fadyat/hooks/api/entities"
 	"github.com/fadyat/hooks/api/entities/gitlab"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/exp/slices"
-	"net/http"
 )
 
 // OnMergeRequestActions handles the merge request actions and sends the comment to the task

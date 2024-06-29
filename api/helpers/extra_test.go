@@ -3,10 +3,11 @@ package helpers
 import (
 	"errors"
 	"fmt"
+	"testing"
+
 	"github.com/fadyat/hooks/api"
 	"github.com/fadyat/hooks/api/entities"
 	"github.com/google/go-cmp/cmp"
-	"testing"
 )
 
 func TestGetBranchNameFromRef(t *testing.T) {

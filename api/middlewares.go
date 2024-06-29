@@ -2,9 +2,10 @@ package api
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
-	"time"
 )
 
 // LoggerMiddleware is a middleware that injects the logger into the context

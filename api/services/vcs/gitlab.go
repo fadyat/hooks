@@ -2,6 +2,7 @@ package vcs
 
 import (
 	"errors"
+
 	"github.com/fadyat/hooks/api"
 	"github.com/fadyat/hooks/api/entities"
 	"github.com/fadyat/hooks/api/helpers"

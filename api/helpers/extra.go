@@ -3,9 +3,10 @@ package helpers
 import (
 	"errors"
 	"fmt"
+	"strings"
+
 	"github.com/fadyat/hooks/api"
 	"github.com/fadyat/hooks/api/entities"
-	"strings"
 )
 
 // GetBranchNameFromRef returns the branch name from the ref

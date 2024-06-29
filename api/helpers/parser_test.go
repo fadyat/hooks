@@ -1,9 +1,10 @@
 package helpers
 
 import (
+	"testing"
+
 	"github.com/fadyat/hooks/api/entities"
 	"github.com/google/go-cmp/cmp"
-	"testing"
 )
 
 func TestParseTaskMention(t *testing.T) {
